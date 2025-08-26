@@ -1,0 +1,122 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Game specific
+saves/
+logs/
+screenshots/
+*.log
+highscores.txt
+player_data.json
+game_save.dat
+
+# Compiled game assets (if any)
+*.pyc
+build/
+dist/
+assets/compiled/
+
+# Local configuration
+config.local.py
+settings.local.py
+local_settings.py
+
+# Development and testing
+test_*.py
+debug_*.py
+temp/
+tmp/
+*.tmp
+
+# Backup files
+*.bak
+*.backup
+*_backup.*
+main_old.py
+
+# Performance profiling
+*.prof
+*.pstats
+
+# Sound and music files (if large)
+*.wav
+*.mp3
+*.ogg
+!assets/sounds/*.wav
+!assets/sounds/*.mp3
+!assets/sounds/*.ogg

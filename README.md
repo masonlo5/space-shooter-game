@@ -1,101 +1,148 @@
-# Space Shooter Game 🚀
+# Galaxy Blaster - Space Shooter Game 🚀
 
-A thrilling space combat game where players pilot spaceships, battle enemies, and explore the cosmos while collecting stars and upgrading their arsenal.
+一個使用 Python 和 Pygame 開發的太空射擊遊戲，玩家操作太空船與外星敵人戰鬥，收集星星解鎖商店功能。
 
-## 🎮 Basic Gameplay
+## 🎮 遊戲特色
 
-- **Pilot Your Spaceship**: Navigate through space and engage in epic battles with alien enemies and enemy spaceships
-- **Laser Combat**: Fire lasers to destroy enemies and defend yourself
-- **Scoring System**: Earn 1 star for each regular enemy defeated
-- **Star Milestone**: Every 40 stars unlocks new opportunities:
-  - Access to the shop for purchasing weapons and spaceships
-  - Unlock new spaceships (1 ship per 40 stars, maximum 5 ships)
+### 核心玩法
 
-## 🛸 Spaceship System
+- **太空戰鬥**: 操作太空船射擊敵人和 Boss
+- **星星收集**: 擊敗敵人獲得星星作為遊戲貨幣
+- **商店系統**: 集滿 40 顆星星解鎖商店，購買武器和道具
+- **道具掉落**: 隨機掉落各種增益道具和危險炸彈
 
-- **5 Unique Spaceships**: Each with distinct capabilities and special attacks
-- **Special Abilities**: Every spaceship features a unique ultimate attack with different effects
-- **Unlock Requirements**: Complete specific levels to unlock spaceship switching
-- **Equipment System**: Players can equip different ultimate abilities (consider loadout design)
+### 武器系統
 
-## 🔫 Weapon System
+- **Basic Weapon**: 基本黃色子彈，傷害 15
+- **Laser Weapon**: 紅色雷射，傷害 25
+- **Plasma Weapon**: 紫色電漿彈，傷害 40
+- **Missile Launcher**: 橙色飛彈，傷害 60
+- **Ion Cannon**: 青色離子砲，傷害 80
+- **武器切換**: 按空白鍵切換武器類型
 
-- **Quick Switch**: Press **Spacebar** to instantly switch between weapons
-- **Diverse Ammunition**: Each weapon fires different types of projectiles
-- **Damage Scaling**: More expensive weapons deal higher damage
-- **Shop Purchase**: All weapons can be acquired through the in-game shop
+### 太空船系統
 
-## 🛍️ Shop System
+- **Explorer**: 探索者，平衡型，特殊攻擊：三重射擊
+- **Fighter**: 戰鬥機，速度快，特殊攻擊：快速連射
+- **Interceptor**: 攔截機，超高速，特殊攻擊：散射攻擊
+- **Destroyer**: 驅逐艦，重型，特殊攻擊：重型飛彈
+- **Battleship**: 戰艦，最強防禦，特殊攻擊：離子砲轟擊
 
-Purchase various items to enhance your gameplay:
+### 敵人類型
 
-### **Weapons**
-- Various laser types and projectile weapons
-- Higher-tier weapons with increased damage
+- **Basic Enemy**: 基本紅色敵人，生命值 30
+- **Fast Enemy**: 橙色快速敵人，生命值 20
+- **Boss**: 大型紫色 Boss，生命值 300，擊敗後觸發勝利
 
-### **Spaceships**
-- New ships unlocked every 40 stars collected
+### 道具系統
 
-### **Potion Items**
-- **Health Potion**: Restore your spaceship's health
-- **Speed Potion**: Increase movement and attack speed
-- **Protect Potion**: Temporary damage resistance
+- **星星**: 遊戲貨幣，用於商店購買
+- **回血藥水**: 恢復 30 點生命值
+- **加速藥水**: 提升移動速度
+- **防護藥水**: 增加 50 點生命值
+- **炸彈**: 危險物品，碰觸即死亡
 
-## 👾 Enemies & Boss Battles
+## 🎯 操作方式
 
-### **Regular Enemies**
-- Float throughout space waiting to be defeated
-- Each kill rewards 1 star
+### 移動控制
 
-### **Boss Spaceships**
-- High health pools and devastating attacks
-- Epic victory celebrations with fireworks animation
-- "Success" message displayed upon defeat
+- **方向鍵** 或 **WASD**: 移動太空船
+- **Ctrl** 或 **Shift**: 射擊
+- **空白鍵**: 切換武器
+- **C 鍵**: 切換太空船
+- **X 鍵**: 發動特殊攻擊（大招）
+- **S 鍵**: 開啟商店（需要 40 顆星星）
+- **ESC**: 關閉商店
 
-## 💣 Loot Drops & Death Conditions
+### 商店操作
 
-### **Item Drop Conditions** (Recommended)
-- Defeat specific enemy types
-- Random probability drops
-- Level completion rewards
+- **1-6 數字鍵**: 購買武器和道具
+- **7-0 數字鍵**: 購買太空船
+- **ESC**: 關閉商店
 
-### **Possible Drops**
-- ⭐ Stars
-- 🧪 Potions
-- 🔧 Weapon upgrade components
+## 🛍️ 商店物品
 
-### **Death Conditions**
-- Defeated by enemy attacks
-- Contact with randomly dropped bombs
+### 武器和道具 (1-6)
 
-## 💡 Additional Features
+| 物品             | 價格    | 效果             |
+| ---------------- | ------- | ---------------- |
+| Health Potion    | 5 星星  | 恢復 50 點生命值 |
+| Speed Boost      | 10 星星 | 永久提升移動速度 |
+| Laser Weapon     | 15 星星 | 解鎖雷射武器     |
+| Plasma Weapon    | 25 星星 | 解鎖電漿武器     |
+| Missile Launcher | 50 星星 | 解鎖飛彈發射器   |
+| Ion Cannon       | 80 星星 | 解鎖離子砲       |
 
-### **UI Display**
-- Current star count
-- Active weapon & spaceship indicators
-- Health bar & remaining potion quantities
+### 太空船 (7-0)
 
-### **Advanced Features**
-- **Mission System**: Complete specific objectives for rewards
-- **Difficulty Scaling**: Stronger and faster enemies as you progress
-- **Achievement System**: Unlock rewards for completing challenges
+| 太空船      | 價格     | 特色                 |
+| ----------- | -------- | -------------------- |
+| Fighter     | 40 星星  | 高速戰鬥機，快速連射 |
+| Interceptor | 80 星星  | 超高速，散射攻擊     |
+| Destroyer   | 120 星星 | 重型艦，飛彈攻擊     |
+| Battleship  | 200 星星 | 最強防禦，離子砲     |
 
-## 🎯 Getting Started
+## 🏆 勝利條件
 
-1. Use arrow keys or WASD to move your spaceship
-2. Click or press designated key to fire lasers
-3. Press Spacebar to switch weapons
-4. Collect stars by defeating enemies
-5. Visit the shop every 40 stars to upgrade your arsenal
-6. Survive as long as possible and defeat all bosses!
+- 擊敗 Boss 敵人
+- 觸發煙火慶祝動畫
+- 顯示 "SUCCESS!" 訊息
 
-## 🌟 Victory Conditions
+## 💀 失敗條件
 
-- Defeat all boss spaceships
-- Collect maximum stars
-- Unlock all 5 spaceships
-- Complete all available missions
+- 生命值歸零
+- 撞到敵人或炸彈
+
+## 🚀 如何開始
+
+### 系統需求
+
+- Python 3.6+
+- Pygame 庫
+
+### 安裝和執行
+
+```bash
+# 安裝 Pygame
+pip install pygame
+
+# 執行遊戲
+python main.py
+```
+
+## 🎮 遊戲畫面說明
+
+### UI 介面
+
+- **生命值條**: 螢幕左上角顯示當前生命值
+- **分數**: 擊敗敵人獲得的分數
+- **星星數量**: 當前擁有的星星數量
+- **當前武器**: 顯示正在使用的武器類型
+- **商店提示**: 達到 40 顆星星時顯示商店開啟提示
+
+### 視覺效果
+
+- **煙火動畫**: Boss 擊敗後的慶祝效果
+- **粒子效果**: 動態煙火粒子系統
+- **幾何圖形**: 使用簡單幾何圖形表現所有遊戲物件
+
+## 🔧 技術特色
+
+- **物件導向設計**: 清晰的類別結構
+- **碰撞檢測**: AABB 矩形碰撞檢測
+- **粒子系統**: 煙火效果實現
+- **狀態管理**: 遊戲狀態和商店狀態切換
+- **動態難度**: 隨分數提升敵人生成速度
+
+## 🎨 開發風格
+
+- 遵循 PEP 8 程式碼風格
+- 詳細的中文註解
+- 清楚的函數文檔字串
+- 模組化的程式結構
 
 ---
 
-**Ready to become the ultimate space pilot? Launch into action and dominate the cosmos! 🌌**
+**開發者**: Space Shooter Game Team  
+**版本**: 1.0  
+**開發語言**: Python + Pygame

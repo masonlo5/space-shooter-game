@@ -4,28 +4,15 @@ mode: agent
 
 # Space Shooter 遊戲開發專案
 
-## 📋 專案規格
+## 開發指引
 
-- **開發語言**: Python + Pygame
-- **視覺風格**: 幾何圖形（不使用圖片資源）
-- **程式碼規範**: 遵循「程式碼開發風格指南」
-- **檔案註解**: 除 README.md 外，其他檔案無需註解
-
-## 🎯 開發指引
-
-- 可先嘗試實作功能，完成後移除測試程式碼
-- 使用幾何圖形代替圖片素材
-- 遵循專案程式碼風格規範
-
-## ---nt
-
-- this is a game project which use python and pygame to create
-- 請符合“程式碼開發風格指南”
-- this game's name is call "space shooter"
-- no need to use the pictures just use the geometry shapes to represent the game objects
-- please use the following game design document to create the game
-- funtcion can be try and when its done just delete the things that belong to trying the function
-- expect README.md other files do not need to have comments
+- 這是一個使用 Python 和 Pygame 建立的遊戲專案
+- 請符合「程式碼開發風格指南」
+- 本專案遊戲名稱為「space shooter」 -圖片先不需要使用，只用幾何形狀暫時替代
+- 請用好維護好理解的檔案架構進行建立
+- 功能可以進行測試，但是測試完畢之後要移除相關測試檔案
+- 除了 README.md 檔案之外，其他檔案不需要額外的說明文件
+- 不要建立 python 虛擬環境，直接使用系統的 python 環境就好
 
 # above is the game's content
 
