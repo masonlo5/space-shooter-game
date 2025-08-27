@@ -122,3 +122,222 @@ class UISystem:
                             victory_rect.width + 40, victory_rect.height + 20), 3)
             
             screen.blit(victory_text, victory_rect)
+    
+    def draw_ship_battle_ui(self, screen, battle_info):
+        """
+        繪製 Ship Battle 模式的 UI 介面\n
+        \n
+        參數:\n
+        screen (pygame.Surface): 遊戲畫面物件\n
+        battle_info (dict): 戰鬥資訊字典\n
+        """
+        if not battle_info:
+            return
+        
+        battle_state = battle_info.get("battle_state", "inactive")
+        
+        if battle_state == "prepare":
+            # 準備階段：顯示雙方名稱和倒數計時
+            self._draw_prepare_screen(screen, battle_info)
+        
+        elif battle_state == "fighting":
+            # 戰鬥階段：顯示血量條和操作說明
+            self._draw_fighting_ui(screen, battle_info)
+        
+        elif battle_state in ["victory", "defeat"]:
+            # 結果階段：顯示勝負結果
+            self._draw_result_screen(screen, battle_info)
+    
+    def _draw_prepare_screen(self, screen, battle_info):
+        """
+        繪製準備階段畫面\n
+        \n
+        參數:\n
+        screen (pygame.Surface): 遊戲畫面物件\n
+        battle_info (dict): 戰鬥資訊字典\n
+        """
+        prepare_timer = battle_info.get("prepare_timer", 0)
+        player_name = battle_info.get("player_name", "Player")
+        robot_name = battle_info.get("robot_name", "RoboWarrior")
+        
+        # 半透明黑色背景
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        overlay.set_alpha(150)
+        overlay.fill(BLACK)
+        screen.blit(overlay, (0, 0))
+        
+        # 標題
+        title_font = pygame.font.Font(None, SHIP_BATTLE_UI["prepare_font_size"])
+        title_text = title_font.render("Ship Battle", True, WHITE)
+        title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 3))
+        screen.blit(title_text, title_rect)
+        
+        # 對戰雙方名稱
+        name_font = pygame.font.Font(None, SHIP_BATTLE_UI["name_font_size"])
+        
+        # 玩家名稱（左側）
+        player_text = name_font.render(player_name, True, GREEN)
+        player_rect = player_text.get_rect(center=(SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2))
+        screen.blit(player_text, player_rect)
+        
+        # VS 文字（中央）
+        vs_text = name_font.render("VS", True, YELLOW)
+        vs_rect = vs_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+        screen.blit(vs_text, vs_rect)
+        
+        # 機器人名稱（右側）
+        robot_text = name_font.render(robot_name, True, RED)
+        robot_rect = robot_text.get_rect(center=(SCREEN_WIDTH * 3 // 4, SCREEN_HEIGHT // 2))
+        screen.blit(robot_text, robot_rect)
+        
+        # 倒數計時
+        countdown_seconds = (prepare_timer // 60) + 1
+        countdown_text = title_font.render(f"戰鬥開始倒數: {countdown_seconds}", True, WHITE)
+        countdown_rect = countdown_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT * 2 // 3))
+        screen.blit(countdown_text, countdown_rect)
+    
+    def _draw_fighting_ui(self, screen, battle_info):
+        """
+        繪製戰鬥階段 UI\n
+        \n
+        參數:\n
+        screen (pygame.Surface): 遊戲畫面物件\n
+        battle_info (dict): 戰鬥資訊字典\n
+        """
+        # 玩家血量條（左上角）
+        self._draw_health_bar(
+            screen,
+            battle_info.get("player_name", "Player"),
+            battle_info.get("player_health", 100),
+            battle_info.get("player_max_health", 100),
+            battle_info.get("player_potions", 0),
+            SHIP_BATTLE_UI["player_health_x"],
+            SHIP_BATTLE_UI["health_bar_y"],
+            GREEN
+        )
+        
+        # 機器人血量條（右上角）
+        self._draw_health_bar(
+            screen,
+            battle_info.get("robot_name", "RoboWarrior"),
+            battle_info.get("robot_health", 100),
+            battle_info.get("robot_max_health", 100),
+            battle_info.get("robot_potions", 0),
+            SHIP_BATTLE_UI["robot_health_x"],
+            SHIP_BATTLE_UI["health_bar_y"],
+            RED
+        )
+        
+        # 操作說明（左下角）
+        self._draw_ship_battle_controls(screen)
+    
+    def _draw_health_bar(self, screen, name, health, max_health, potions, x, y, color):
+        """
+        繪製血量條\n
+        \n
+        參數:\n
+        screen (pygame.Surface): 遊戲畫面物件\n
+        name (str): 角色名稱\n
+        health (int): 當前血量\n
+        max_health (int): 最大血量\n
+        potions (int): 血瓶數量\n
+        x (int): x 座標\n
+        y (int): y 座標\n
+        color (tuple): 血條顏色\n
+        """
+        bar_width = SHIP_BATTLE_UI["health_bar_width"]
+        bar_height = SHIP_BATTLE_UI["health_bar_height"]
+        
+        # 角色名稱
+        name_font = pygame.font.Font(None, SHIP_BATTLE_UI["name_font_size"])
+        name_text = name_font.render(name, True, WHITE)
+        screen.blit(name_text, (x, y - 25))
+        
+        # 血量條背景（深灰色）
+        pygame.draw.rect(screen, (50, 50, 50), (x, y, bar_width, bar_height))
+        
+        # 血量條前景
+        health_percentage = max(0, health / max_health) if max_health > 0 else 0
+        current_width = int(bar_width * health_percentage)
+        pygame.draw.rect(screen, color, (x, y, current_width, bar_height))
+        
+        # 血量條邊框
+        pygame.draw.rect(screen, WHITE, (x, y, bar_width, bar_height), 2)
+        
+        # 血量數值
+        health_text = self.small_font.render(f"{health}/{max_health}", True, WHITE)
+        text_rect = health_text.get_rect(center=(x + bar_width // 2, y + bar_height // 2))
+        screen.blit(health_text, text_rect)
+        
+        # 血瓶數量
+        potion_text = self.small_font.render(f"血瓶: {potions}", True, CYAN)
+        screen.blit(potion_text, (x, y + bar_height + 5))
+    
+    def _draw_ship_battle_controls(self, screen):
+        """
+        繪製 Ship Battle 操作說明\n
+        \n
+        參數:\n
+        screen (pygame.Surface): 遊戲畫面物件\n
+        """
+        controls_x = 20
+        controls_y = SCREEN_HEIGHT - 140
+        
+        controls = [
+            "操作說明:",
+            "WASD/方向鍵: 移動",
+            "Shift: 射擊",
+            "Space: 特殊攻擊",
+            "I: 使用血瓶",
+            "Q: 退出戰鬥"
+        ]
+        
+        for i, control in enumerate(controls):
+            if i == 0:  # 標題用黃色
+                color = YELLOW
+            else:
+                color = WHITE
+            
+            control_text = self.small_font.render(control, True, color)
+            screen.blit(control_text, (controls_x, controls_y + i * 20))
+    
+    def _draw_result_screen(self, screen, battle_info):
+        """
+        繪製戰鬥結果畫面\n
+        \n
+        參數:\n
+        screen (pygame.Surface): 遊戲畫面物件\n
+        battle_info (dict): 戰鬥資訊字典\n
+        """
+        battle_state = battle_info.get("battle_state")
+        result_timer = battle_info.get("result_timer", 0)
+        
+        # 半透明背景
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        overlay.set_alpha(180)
+        overlay.fill(BLACK)
+        screen.blit(overlay, (0, 0))
+        
+        # 結果文字
+        result_font = pygame.font.Font(None, SHIP_BATTLE_UI["result_font_size"])
+        
+        if battle_state == "victory":
+            result_text = result_font.render("Victory", True, GREEN)
+            subtitle_text = self.font.render("你擊敗了機器人！", True, WHITE)
+        else:  # defeat
+            result_text = result_font.render("Defeat", True, RED)
+            subtitle_text = self.font.render("你被機器人擊敗了！", True, WHITE)
+        
+        # 主要結果文字
+        result_rect = result_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50))
+        screen.blit(result_text, result_rect)
+        
+        # 副標題
+        subtitle_rect = subtitle_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 20))
+        screen.blit(subtitle_text, subtitle_rect)
+        
+        # 倒數計時
+        countdown_seconds = (result_timer // 60) + 1
+        countdown_text = self.font.render(f"{countdown_seconds} 秒後返回主選單", True, WHITE)
+        countdown_rect = countdown_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 80))
+        screen.blit(countdown_text, countdown_rect)

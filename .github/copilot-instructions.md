@@ -7,16 +7,19 @@
 ### 關鍵架構決策
 
 - **模組分離**: `entities/` 存放遊戲物件，`systems/` 存放業務邏輯，`config.py` 統一管理遊戲參數
-- **配置驅動**: 所有武器、太空船、敵人屬性都由 `config.py` 的字典定義，支援資料驅動的遊戲設計
-- **全域狀態管理**: 使用 `main.py` 中的全域變數（`score`, `stars`, `boss_killed`, `victory_timer`）管理遊戲狀態
+- **配置驅動**: 所有武器、太空船、敵人、Boss 攻擊屬性都由 `config.py` 的字典定義，支援資料驅動的遊戲設計
+- **全域狀態管理**: 使用 `main.py` 中的全域變數（`score`, `stars`, `boss_killed`, `victory_timer`, `enemies_killed`）管理遊戲狀態
+- **狀態機設計**: 遊戲使用明確的狀態常數管理不同場景（`GAME_STATE_MENU`, `GAME_STATE_PLAYING`, `GAME_STATE_BOSS_FIGHT`, `GAME_STATE_SHIP_BATTLE`, `GAME_STATE_VICTORY`, `GAME_STATE_GAME_OVER`）
 
 ## 核心物件系統 (`entities/`)
 
 - **Player**: 玩家太空船，支援 5 種可切換太空船類型，每種有獨特的特殊攻擊模式
 - **Bullet**: 子彈系統，支援 5 種武器類型，外觀和傷害從 `WEAPON_STATS` 字典載入
 - **Enemy**: 敵人系統，包含 3 種類型，屬性從 `ENEMY_STATS` 字典載入
+- **Boss**: Boss 系統，擁有垃圾攻擊和扇形散彈兩種攻擊模式，屬性從 `ENEMY_STATS["boss"]` 載入
 - **PowerUp**: 道具系統，5 種掉落物（包括致命炸彈），支援複雜的效果邏輯
 - **Firework**: 粒子系統，使用數學函數實現煙火爆炸效果
+- **Robot**: Ship Battle 模式的機器人對手，具備 AI 移動和攻擊邏輯
 
 ## 程式碼風格約定
 
@@ -45,13 +48,15 @@
 - **武器系統**: 所有屬性由 `WEAPON_STATS` 字典定義，新增武器只需修改配置
 - **太空船系統**: `SPACESHIP_STATS` 定義所有屬性，`update_ship_stats()` 同步更新實例
 - **敵人系統**: `ENEMY_STATS` 定義類型，支援動態屬性載入
+- **Boss 攻擊系統**: `BOSS_BULLET_STATS` 定義垃圾攻擊和散彈攻擊的所有屬性
 - **商店系統**: `SHOP_ITEMS` 字典驅動商店界面和購買邏輯
 
 ### 全域狀態協調
 
-- **遊戲狀態**: `main.py` 的全域變數（`score`, `stars`, `boss_killed`, `victory_timer`）作為唯一真相來源
+- **遊戲狀態**: `main.py` 的全域變數（`score`, `stars`, `boss_killed`, `victory_timer`, `enemies_killed`）作為唯一真相來源
 - **物件間通信**: 透過 `GameController` 的方法參數傳遞狀態，避免物件間直接依賴
 - **狀態切換**: `shop_open` 布林值控制商店/遊戲模式，影響事件處理和渲染邏輯
+- **Boss 戰觸發**: `enemies_killed >= BOSS_TRIGGER_KILLS` 自動觸發 Boss 戰狀態
 
 ### 效能優化模式
 
@@ -74,6 +79,13 @@
 2. 在 `entities/player.py` 的 `draw()` 和 `special_attack()` 新增實現
 3. 在 `systems/shop.py` 新增購買邏輯
 4. 確保 `update_ship_stats()` 正確同步屬性
+
+### 新增 Boss 攻擊模式
+
+1. 在 `config.py` 的 `BOSS_BULLET_STATS` 新增攻擊類型配置
+2. 在 `entities/boss.py` 的攻擊方法中新增邏輯
+3. 在 `main.py` 的 `update_game_objects()` 處理新攻擊子彈
+4. 確保碰撞檢測涵蓋新攻擊類型
 
 ### 新增遊戲系統
 
@@ -103,9 +115,10 @@
 - 修改 `config.py` 中的常數快速測試（如 `SHOP_UNLOCK_STARS = 5`）
 - 調整 `ENEMY_SPAWN_DELAY` 測試敵人生成頻率
 - 在 `GameController.__init__()` 設定 `stars = 100` 快速測試商店功能
+- 修改 `BOSS_TRIGGER_KILLS = 5` 快速觸發 Boss 戰測試
 
 ### 模組化除錯
 
 - **遊戲邏輯**: 在 `GameController` 的各個方法中加入 `print()` 語句追蹤狀態變化
-- **系統功能**: 分別測試 `UISystem`, `ShopSystem`, `collision` 模組的獨立功能
+- **系統功能**: 分別測試 `UISystem`, `ShopSystem`, `MenuSystem`, `ShipBattleSystem`, `VisualEffectsSystem`, `collision` 模組的獨立功能
 - **物件行為**: 在 `entities/` 中各類別的關鍵方法加入除錯資訊

@@ -1,6 +1,7 @@
 ######################載入套件######################
 import pygame
-from config import SCREEN_HEIGHT
+import random
+from config import SCREEN_HEIGHT, GIFT_STATS
 
 ######################道具掉落類別######################
 class PowerUp:
@@ -11,7 +12,8 @@ class PowerUp:
     1. 道具移動（向下飄落）\n
     2. 不同道具類型的外觀\n
     3. 道具效果的觸發\n
-    4. 邊界檢測\n
+    4. Boss掉落的禮物系統\n
+    5. 邊界檢測\n
     \n
     屬性:\n
     x (int): 道具的 x 座標\n
@@ -59,6 +61,12 @@ class PowerUp:
             self.width = 18
             self.height = 18
             self.color = RED
+        elif powerup_type == "gift":
+            # Boss掉落的禮物
+            self.width = GIFT_STATS["width"]
+            self.height = GIFT_STATS["height"]
+            self.color = GIFT_STATS["color"]
+            self.speed = GIFT_STATS["speed"]
     
     def move(self):
         """
@@ -111,6 +119,28 @@ class PowerUp:
             pygame.draw.circle(screen, BLACK, (center_x, center_y), 8, 2)
             # 引線
             pygame.draw.line(screen, BLACK, (center_x - 6, center_y - 6), (center_x - 10, center_y - 10), 2)
+        elif self.powerup_type == "gift":
+            # Boss掉落的禮物：金色禮物盒
+            # 禮物盒主體
+            pygame.draw.rect(screen, self.color, (self.x, self.y, self.width, self.height))
+            
+            # 禮物盒裝飾：十字緞帶
+            ribbon_color = RED
+            # 垂直緞帶
+            pygame.draw.rect(screen, ribbon_color, (self.x + self.width // 2 - 2, self.y, 4, self.height))
+            # 水平緞帶
+            pygame.draw.rect(screen, ribbon_color, (self.x, self.y + self.height // 2 - 2, self.width, 4))
+            
+            # 蝴蝶結
+            bow_x = self.x + self.width // 2
+            bow_y = self.y + 2
+            pygame.draw.circle(screen, ribbon_color, (bow_x - 3, bow_y), 3)
+            pygame.draw.circle(screen, ribbon_color, (bow_x + 3, bow_y), 3)
+            pygame.draw.circle(screen, (139, 0, 0), (bow_x, bow_y), 2)  # 深紅色中心
+            
+            # 發光效果（簡單閃爍）
+            if random.randint(1, 10) <= 3:  # 30%機率閃爍
+                pygame.draw.rect(screen, WHITE, (self.x - 2, self.y - 2, self.width + 4, self.height + 4), 1)
     
     def is_off_screen(self):
         """
@@ -129,23 +159,53 @@ class PowerUp:
         player (Player): 玩家物件\n
         \n
         回傳:\n
-        tuple: (is_fatal, stars_gained) - 是否致命和獲得的星星數\n
+        tuple: (is_fatal, stars_gained, should_return_to_menu) - 是否致命、獲得的星星數、是否返回主畫面\n
         """
         if self.powerup_type == "star":
-            return False, 1  # 不致命，獲得1顆星星
+            return False, 1, False  # 不致命，獲得1顆星星，不返回主畫面
         elif self.powerup_type == "health_potion":
             player.health = min(player.max_health, player.health + 30)  # 最多回復到最大值
-            return False, 0
+            return False, 0, False
         elif self.powerup_type == "speed_potion":
             player.speed = min(8, player.speed + 1)  # 最多加速到 8
-            return False, 0
+            return False, 0, False
         elif self.powerup_type == "protect_potion":
             # 暫時防護效果（這裡簡化處理）
             player.health = min(player.max_health, player.health + 50)
-            return False, 0
+            return False, 0, False
         elif self.powerup_type == "bomb":
             # 碰到炸彈會死亡
             player.health = 0
-            return True, 0  # 致命，不獲得星星
+            return True, 0, False  # 致命，不獲得星星，不返回主畫面
+        elif self.powerup_type == "gift":
+            # Boss掉落的禮物：給玩家隨機藥水並返回主畫面
+            random_potion = self._get_random_potion_effect(player)
+            return False, 10, True  # 不致命，獲得10顆星星，返回主畫面
         
-        return False, 0
+        return False, 0, False
+    
+    def _get_random_potion_effect(self, player):
+        """
+        獲得隨機藥水效果（內部方法）\n
+        \n
+        參數:\n
+        player (Player): 玩家物件\n
+        \n
+        回傳:\n
+        str: 獲得的藥水類型\n
+        """
+        # 隨機選擇一種藥水效果
+        potion_types = ["health_potion", "speed_potion", "protect_potion"]
+        chosen_potion = random.choice(potion_types)
+        
+        if chosen_potion == "health_potion":
+            player.health = min(player.max_health, player.health + 50)  # 禮物的回血效果更強
+            print("禮物效果：獲得強力回血藥水！")
+        elif chosen_potion == "speed_potion":
+            player.speed = min(10, player.speed + 2)  # 禮物的加速效果更強
+            print("禮物效果：獲得強力加速藥水！")
+        elif chosen_potion == "protect_potion":
+            player.health = min(player.max_health, player.health + 80)  # 禮物的防護效果更強
+            print("禮物效果：獲得強力防護藥水！")
+        
+        return chosen_potion
