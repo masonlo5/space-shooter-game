@@ -84,7 +84,7 @@ class MenuSystem:
         key (int): 按鍵代碼\n
         \n
         回傳:\n
-        str: 遊戲狀態變更 ("start_game", "ship_battle", None)\n
+        str: 遊戲狀態變更 ("start_game", "ship_battle", "hide_seek", None)\n
         """
         if self.is_editing_name:
             return None
@@ -98,6 +98,11 @@ class MenuSystem:
             # 開始 Ship Battle 模式
             print(f"玩家 {self.player_name} 開始 Ship Battle 模式")
             return "ship_battle"
+        
+        elif key == pygame.K_l:
+            # 開始躲貓貓遊戲
+            print(f"玩家 {self.player_name} 開始躲貓貓遊戲")
+            return "hide_seek"
         
         elif key == pygame.K_n:
             # 編輯玩家名稱
@@ -234,7 +239,7 @@ class MenuSystem:
         screen (pygame.Surface): 遊戲畫面物件\n
         """
         # 一般遊戲模式按鈕
-        normal_button_rect = pygame.Rect(SCREEN_WIDTH // 2 - 120, SCREEN_HEIGHT // 2 + 30, 100, 40)
+        normal_button_rect = pygame.Rect(SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2 + 30, 90, 40)
         pygame.draw.rect(screen, (50, 50, 50), normal_button_rect)
         pygame.draw.rect(screen, GREEN, normal_button_rect, 2)
         
@@ -243,13 +248,22 @@ class MenuSystem:
         screen.blit(normal_text, normal_text_rect)
         
         # Ship Battle 模式按鈕
-        battle_button_rect = pygame.Rect(SCREEN_WIDTH // 2 + 20, SCREEN_HEIGHT // 2 + 30, 100, 40)
+        battle_button_rect = pygame.Rect(SCREEN_WIDTH // 2 - 45, SCREEN_HEIGHT // 2 + 30, 90, 40)
         pygame.draw.rect(screen, (50, 50, 50), battle_button_rect)
         pygame.draw.rect(screen, RED, battle_button_rect, 2)
         
         battle_text = self.small_font.render("Ship Battle", True, WHITE)
         battle_text_rect = battle_text.get_rect(center=battle_button_rect.center)
         screen.blit(battle_text, battle_text_rect)
+        
+        # 躲貓貓模式按鈕
+        hide_seek_button_rect = pygame.Rect(SCREEN_WIDTH // 2 + 60, SCREEN_HEIGHT // 2 + 30, 90, 40)
+        pygame.draw.rect(screen, (50, 50, 50), hide_seek_button_rect)
+        pygame.draw.rect(screen, PURPLE, hide_seek_button_rect, 2)
+        
+        hide_seek_text = self.small_font.render("躲貓貓", True, WHITE)
+        hide_seek_text_rect = hide_seek_text.get_rect(center=hide_seek_button_rect.center)
+        screen.blit(hide_seek_text, hide_seek_text_rect)
     
     def _draw_instructions(self, screen):
         """
@@ -264,6 +278,7 @@ class MenuSystem:
             "遊戲模式選擇:",
             "Enter/Space: 開始一般遊戲",
             "M: 開始 Ship Battle 模式",
+            "L: 開始躲貓貓遊戲",
             "N: 修改玩家名稱"
         ]
         
@@ -327,7 +342,7 @@ class MenuSystem:
         mouse_pos (tuple): 滑鼠點擊位置 (x, y)\n
         \n
         回傳:\n
-        str: 遊戲狀態變更 ("start_game", "ship_battle", "edit_name", None)\n
+        str: 遊戲狀態變更 ("start_game", "ship_battle", "hide_seek", "edit_name", None)\n
         """
         # 檢查是否點擊名稱輸入框
         if self.name_input_rect.collidepoint(mouse_pos):
@@ -337,15 +352,20 @@ class MenuSystem:
             return "edit_name"
         
         # 檢查遊戲模式按鈕
-        normal_button_rect = pygame.Rect(SCREEN_WIDTH // 2 - 120, SCREEN_HEIGHT // 2 + 30, 100, 40)
+        normal_button_rect = pygame.Rect(SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2 + 30, 90, 40)
         if normal_button_rect.collidepoint(mouse_pos):
             print("點擊開始一般遊戲")
             return "start_game"
         
-        battle_button_rect = pygame.Rect(SCREEN_WIDTH // 2 + 20, SCREEN_HEIGHT // 2 + 30, 100, 40)
+        battle_button_rect = pygame.Rect(SCREEN_WIDTH // 2 - 45, SCREEN_HEIGHT // 2 + 30, 90, 40)
         if battle_button_rect.collidepoint(mouse_pos):
             print(f"玩家 {self.player_name} 點擊開始 Ship Battle 模式")
             return "ship_battle"
+        
+        hide_seek_button_rect = pygame.Rect(SCREEN_WIDTH // 2 + 60, SCREEN_HEIGHT // 2 + 30, 90, 40)
+        if hide_seek_button_rect.collidepoint(mouse_pos):
+            print(f"玩家 {self.player_name} 點擊開始躲貓貓遊戲")
+            return "hide_seek"
         
         return None
     
@@ -368,9 +388,11 @@ class MenuSystem:
         回傳:\n
         bool: 如果滑鼠懸停在任何按鈕上返回 True\n
         """
-        normal_button_rect = pygame.Rect(SCREEN_WIDTH // 2 - 120, SCREEN_HEIGHT // 2 + 30, 100, 40)
-        battle_button_rect = pygame.Rect(SCREEN_WIDTH // 2 + 20, SCREEN_HEIGHT // 2 + 30, 100, 40)
+        normal_button_rect = pygame.Rect(SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2 + 30, 90, 40)
+        battle_button_rect = pygame.Rect(SCREEN_WIDTH // 2 - 45, SCREEN_HEIGHT // 2 + 30, 90, 40)
+        hide_seek_button_rect = pygame.Rect(SCREEN_WIDTH // 2 + 60, SCREEN_HEIGHT // 2 + 30, 90, 40)
         
         return (normal_button_rect.collidepoint(mouse_pos) or 
                 battle_button_rect.collidepoint(mouse_pos) or
+                hide_seek_button_rect.collidepoint(mouse_pos) or
                 self.name_input_rect.collidepoint(mouse_pos))

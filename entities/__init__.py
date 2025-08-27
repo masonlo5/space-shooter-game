@@ -9,6 +9,9 @@
 - Bullet: 子彈
 - PowerUp: 道具
 - Firework: 煙火效果
+- HideSeekPlayer: 躲貓貓遊戲玩家
+- Ghost: 幽靈模式
+- HideSeekMap: 躲貓貓地圖
 
 所有物件都遵循統一的設計模式，包含移動、繪製、碰撞檢測等基本功能。
 """
@@ -20,5 +23,9 @@ from .boss import Boss
 from .bullet import Bullet, RobotBullet
 from .powerup import PowerUp
 from .firework import Firework
+from .hide_seek_player import HideSeekPlayer
+from .ghost import Ghost
+from .hide_seek_map import HideSeekMap
 
-__all__ = ['Player', 'Robot', 'Enemy', 'Boss', 'Bullet', 'RobotBullet', 'PowerUp', 'Firework']
+__all__ = ['Player', 'Robot', 'Enemy', 'Boss', 'Bullet', 'RobotBullet', 'PowerUp', 'Firework', 
+           'HideSeekPlayer', 'Ghost', 'HideSeekMap']

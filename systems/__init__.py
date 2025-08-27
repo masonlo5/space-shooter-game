@@ -8,6 +8,7 @@
 - menu: 主畫面系統
 - ship_battle: Ship Battle 對戰系統
 - visual_effects: 視覺效果系統
+- hide_seek: 躲貓貓遊戲系統
 
 這些系統負責處理遊戲邏輯，與遊戲物件分離，提高程式碼的模組化程度。
 """
@@ -18,5 +19,6 @@ from .shop import ShopSystem
 from .menu import MenuSystem
 from .ship_battle import ShipBattleSystem
 from .visual_effects import VisualEffectsSystem
+from .hide_seek import HideSeekSystem
 
-__all__ = ['check_collision', 'UISystem', 'ShopSystem', 'MenuSystem', 'ShipBattleSystem', 'VisualEffectsSystem']
+__all__ = ['check_collision', 'UISystem', 'ShopSystem', 'MenuSystem', 'ShipBattleSystem', 'VisualEffectsSystem', 'HideSeekSystem']

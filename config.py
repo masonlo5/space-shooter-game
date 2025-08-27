@@ -273,3 +273,158 @@ SHIP_BATTLE_UI = {
     "prepare_font_size": 48,
     "result_font_size": 72
 }
+
+######################躲貓貓遊戲設定######################
+# 躲貓貓遊戲狀態常數
+GAME_STATE_HIDE_SEEK = "hide_seek"
+GAME_STATE_HIDE_SEEK_LOBBY = "hide_seek_lobby"
+GAME_STATE_HIDE_SEEK_TELEPORT = "hide_seek_teleport"
+GAME_STATE_HIDE_SEEK_ROLE_REVEAL = "hide_seek_role_reveal"
+GAME_STATE_HIDE_SEEK_PLAYING = "hide_seek_playing"
+GAME_STATE_HIDE_SEEK_GHOST = "hide_seek_ghost"
+
+# 躲貓貓設定
+HIDE_SEEK_SETTINGS = {
+    "total_players": 5,               # 總玩家數（1真人+4AI）
+    "seekers_count": 2,               # 搜尋者數量
+    "hiders_count": 3,                # 躲藏者數量
+    "game_duration": 3600,            # 遊戲持續時間（60秒）
+    "lobby_duration": 300,            # 大廳階段時間（5秒）
+    "teleport_duration": 180,         # 傳送階段時間（3秒）
+    "role_reveal_duration": 180,      # 角色顯示階段時間（3秒）
+    "fps": 60,                        # 遊戲幀率
+}
+
+# 躲貓貓地圖設定
+HIDE_SEEK_MAP = {
+    "map_width": 1600,        # 地圖實際寬度（比螢幕大）
+    "map_height": 1200,       # 地圖實際高度（比螢幕大）
+    "obstacle_count": 15,     # 障礙物數量
+    "obstacle_min_size": 40,  # 障礙物最小尺寸
+    "obstacle_max_size": 120, # 障礙物最大尺寸
+    "spawn_area_size": 100,   # 初始出生區域大小
+    "safe_distance": 150      # 傳送時玩家間的安全距離
+}
+
+# 躲貓貓太空船外觀設定（5種不同外觀）
+HIDE_SEEK_SPACESHIP_STYLES = {
+    "style_1": {
+        "primary_color": CYAN,
+        "secondary_color": BLUE,
+        "shape": "triangle",
+        "size_modifier": 1.0
+    },
+    "style_2": {
+        "primary_color": GREEN,
+        "secondary_color": (0, 200, 0),
+        "shape": "diamond",
+        "size_modifier": 1.1
+    },
+    "style_3": {
+        "primary_color": YELLOW,
+        "secondary_color": ORANGE,
+        "shape": "arrow",
+        "size_modifier": 0.9
+    },
+    "style_4": {
+        "primary_color": PURPLE,
+        "secondary_color": MAGENTA,
+        "shape": "star",
+        "size_modifier": 1.2
+    },
+    "style_5": {
+        "primary_color": RED,
+        "secondary_color": (200, 0, 0),
+        "shape": "hexagon",
+        "size_modifier": 1.0
+    }
+}
+
+# 躲貓貓道具系統（5種藥水，每種限用3次）
+HIDE_SEEK_POTIONS = {
+    "speed_boost": {
+        "name": "加速藥水",
+        "color": GREEN,
+        "duration": 300,       # 持續5秒
+        "effect_multiplier": 1.5,
+        "uses": 3
+    },
+    "invisibility": {
+        "name": "隱形藥水",
+        "color": (100, 100, 100),
+        "duration": 180,       # 持續3秒
+        "effect_multiplier": 0.3,  # 透明度
+        "uses": 3
+    },
+    "shield": {
+        "name": "護盾藥水",
+        "color": BLUE,
+        "duration": 600,       # 持續10秒
+        "effect_multiplier": 1.0,
+        "uses": 3
+    },
+    "freeze_immunity": {
+        "name": "防凍藥水",
+        "color": ORANGE,
+        "duration": 900,       # 持續15秒
+        "effect_multiplier": 1.0,
+        "uses": 3
+    },
+    "teleport": {
+        "name": "瞬移藥水",
+        "color": PURPLE,
+        "duration": 0,         # 瞬間效果
+        "effect_multiplier": 1.0,
+        "uses": 3
+    }
+}
+
+# 躲貓貓戰鬥系統設定
+HIDE_SEEK_COMBAT = {
+    "special_attack_cooldown": 60,     # 特殊攻擊冷卻時間（1秒）
+    "special_attack_range": 80,        # 特殊攻擊範圍
+    "freeze_duration": 180,            # 冰凍持續時間（3秒）
+    "seeker_attack_damage": 100,       # 搜尋者攻擊傷害（一擊致命）
+    "hider_attack_effect": "freeze",   # 躲藏者攻擊效果（冰凍）
+    "invulnerable_time": 60           # 受到攻擊後無敵時間（1秒）
+}
+
+# 躲貓貓小地圖設定
+HIDE_SEEK_MINIMAP = {
+    "width": 200,
+    "height": 150,
+    "x": SCREEN_WIDTH - 220,
+    "y": SCREEN_HEIGHT - 170,
+    "background_color": (0, 0, 0, 128),
+    "border_color": WHITE,
+    "player_dot_size": 3,
+    "seeker_color": RED,
+    "hider_color": GREEN,
+    "ghost_color": (100, 100, 100),
+    "self_color": YELLOW,
+    "scale_factor": 0.125  # 地圖縮放比例
+}
+
+# 躲貓貓UI設定
+HIDE_SEEK_UI = {
+    "timer_font_size": 36,
+    "role_font_size": 48,
+    "potion_icon_size": 30,
+    "potion_counter_font_size": 24,
+    "status_font_size": 28,
+    "ghost_message_font_size": 32,
+    "countdown_font_size": 72
+}
+
+# 躲貓貓AI行為設定
+HIDE_SEEK_AI = {
+    "movement_change_interval": 60,    # AI每1秒改變移動方向（更快反應）
+    "seek_update_interval": 30,        # 搜尋者AI每0.5秒更新目標（更頻繁）
+    "hide_flee_distance": 250,         # 躲藏者發現搜尋者時的逃跑距離
+    "patrol_radius": 800,              # 搜尋者巡邏半徑（大幅增加）
+    "global_search_radius": 2000,      # 全地圖搜索範圍
+    "random_movement_chance": 20,      # 20%機率進行隨機移動（減少隨機性）
+    "aggressive_pursuit": True,        # 開啟積極追擊模式
+    "potion_use_health_threshold": 50, # AI在血量低於50%時使用道具
+    "potion_use_cooldown": 600         # AI使用道具的冷卻時間（10秒）
+}

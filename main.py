@@ -10,7 +10,7 @@ from config import *
 from entities import Player, Enemy, Boss, Bullet, PowerUp, Firework
 
 # 匯入遊戲系統
-from systems import check_collision, UISystem, ShopSystem, MenuSystem, ShipBattleSystem, VisualEffectsSystem
+from systems import check_collision, UISystem, ShopSystem, MenuSystem, ShipBattleSystem, VisualEffectsSystem, HideSeekSystem
 
 ######################遊戲狀態常數######################
 GAME_STATE_MENU = "menu"
@@ -19,6 +19,7 @@ GAME_STATE_BOSS_FIGHT = "boss_fight"
 GAME_STATE_VICTORY = "victory"
 GAME_STATE_GAME_OVER = "game_over"
 GAME_STATE_SHIP_BATTLE = "ship_battle"
+GAME_STATE_HIDE_SEEK = "hide_seek"
 
 ######################全域變數######################
 score = 0
@@ -62,6 +63,7 @@ class GameController:
         self.menu_system = MenuSystem()
         self.ship_battle_system = ShipBattleSystem()
         self.visual_effects_system = VisualEffectsSystem()
+        self.hide_seek_system = None  # 躲貓貓系統（按需創建）
         
         # 遊戲狀態管理
         self.game_state = GAME_STATE_MENU
@@ -112,6 +114,19 @@ class GameController:
         # 切換到 Ship Battle 狀態
         self.game_state = GAME_STATE_SHIP_BATTLE
     
+    def start_hide_seek(self):
+        """
+        開始躲貓貓遊戲\n
+        """
+        print("開始躲貓貓遊戲")
+        
+        # 創建躲貓貓遊戲系統
+        player_name = self.menu_system.get_player_name()
+        self.hide_seek_system = HideSeekSystem(player_name)
+        
+        # 切換到躲貓貓狀態
+        self.game_state = GAME_STATE_HIDE_SEEK
+    
     def handle_events(self):
         """
         處理遊戲事件\n
@@ -132,6 +147,8 @@ class GameController:
                             self.reset_game()
                         elif action == "ship_battle":
                             self.start_ship_battle()
+                        elif action == "hide_seek":
+                            self.start_hide_seek()
             
             elif event.type == pygame.KEYDOWN:
                 if self.game_state == GAME_STATE_MENU:
@@ -146,10 +163,20 @@ class GameController:
                             self.reset_game()
                         elif action == "ship_battle":
                             self.start_ship_battle()
+                        elif action == "hide_seek":
+                            self.start_hide_seek()
                 
                 elif self.game_state == GAME_STATE_SHIP_BATTLE:
                     # Ship Battle 模式不需要特殊按鍵處理，所有邏輯在 update 中
                     pass
+                
+                elif self.game_state == GAME_STATE_HIDE_SEEK:
+                    # 躲貓貓模式的按鍵處理
+                    if self.hide_seek_system:
+                        result = self.hide_seek_system.handle_key_press(event.key)
+                        if result == "return_to_menu":
+                            self.game_state = GAME_STATE_MENU
+                            self.hide_seek_system = None
                 
                 elif self.game_state in [GAME_STATE_PLAYING, GAME_STATE_BOSS_FIGHT]:
                     if self.shop_open:
@@ -216,6 +243,19 @@ class GameController:
                 self.game_state = GAME_STATE_MENU
             
             return  # Ship Battle 模式不執行下面的邏輯
+        
+        # 躲貓貓模式的更新邏輯
+        if self.game_state == GAME_STATE_HIDE_SEEK:
+            if self.hide_seek_system:
+                keys = pygame.key.get_pressed()
+                result = self.hide_seek_system.update(keys)
+                
+                if result == "return_to_menu":
+                    print("躲貓貓遊戲結束，返回主選單")
+                    self.hide_seek_system = None
+                    self.game_state = GAME_STATE_MENU
+            
+            return  # 躲貓貓模式不執行下面的邏輯
         
         # 只有在一般遊戲狀態才更新遊戲邏輯
         if self.game_state not in [GAME_STATE_PLAYING, GAME_STATE_BOSS_FIGHT]:
@@ -501,6 +541,11 @@ class GameController:
             
             # 繪製視覺效果（雪花或烏鴉）
             self.visual_effects_system.draw(self.screen)
+        
+        elif self.game_state == GAME_STATE_HIDE_SEEK:
+            # 繪製躲貓貓遊戲
+            if self.hide_seek_system:
+                self.hide_seek_system.draw(self.screen)
         
         else:
             # 清空螢幕（填滿黑色）
