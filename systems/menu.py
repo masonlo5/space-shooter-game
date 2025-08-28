@@ -272,12 +272,13 @@ class MenuSystem:
         參數:\n
         screen (pygame.Surface): 遊戲畫面物件\n
         """
-        instructions_y = SCREEN_HEIGHT // 2 + 100
+        # 進一步調整位置，與按鈕保持更合適的間距
+        instructions_y = SCREEN_HEIGHT // 2 + 80
         
         instructions = [
             "遊戲模式選擇:",
             "Enter/Space: 開始一般遊戲",
-            "M: 開始 Ship Battle 模式",
+            "M: 開始 Ship Battle 模式", 
             "L: 開始躲貓貓遊戲",
             "N: 修改玩家名稱"
         ]
@@ -288,8 +289,9 @@ class MenuSystem:
             else:
                 color = WHITE
             
+            # 使用18像素間距，更緊湊的排列
             instruction_text = self.small_font.render(instruction, True, color)
-            instruction_rect = instruction_text.get_rect(center=(SCREEN_WIDTH // 2, instructions_y + i * 25))
+            instruction_rect = instruction_text.get_rect(center=(SCREEN_WIDTH // 2, instructions_y + i * 18))
             screen.blit(instruction_text, instruction_rect)
     
     def _draw_credits(self, screen):
@@ -301,17 +303,21 @@ class MenuSystem:
         """
         credit_font = create_font(FONT_SIZES["mini"])
         
-        # 版權資訊
-        credits = [
-            "使用 Python + Pygame 開發",
-            "",
+        # 重新設計版權資訊佈局，避免與操作說明重疊
+        # 將操作說明分為左右兩欄以節省垂直空間
+        
+        # 左欄：一般模式操作
+        left_credits = [
             "一般模式操作:",
             "方向鍵/WASD：移動太空船",
-            "Ctrl/Shift：發射子彈",
+            "Ctrl/Shift：發射子彈", 
             "空白鍵：切換武器",
             "C鍵：切換太空船",
-            "X鍵：特殊攻擊",
-            "",
+            "X鍵：特殊攻擊"
+        ]
+        
+        # 右欄：Ship Battle 模式操作
+        right_credits = [
             "Ship Battle 模式操作:",
             "WASD/方向鍵：移動",
             "Shift：射擊",
@@ -320,19 +326,43 @@ class MenuSystem:
             "Q：退出戰鬥"
         ]
         
-        start_y = SCREEN_HEIGHT - len(credits) * 18 - 10
+        # 底部版權資訊
+        bottom_credit = "使用 Python + Pygame 開發"
         
-        for i, credit in enumerate(credits):
-            if credit in ["一般模式操作:", "Ship Battle 模式操作:"]:
+        # 計算安全的起始位置（操作說明結束後留15像素間距）
+        instructions_end = SCREEN_HEIGHT // 2 + 80 + 5 * 18  # 操作說明結束位置
+        safe_start_y = instructions_end + 15  # 留15像素間距，縮減間距
+        
+        # 繪製左欄（一般模式操作）
+        left_x = SCREEN_WIDTH // 4  # 左欄位置
+        for i, credit in enumerate(left_credits):
+            if "一般模式操作:" in credit:
                 color = CYAN
-            elif credit == "":
-                continue
             else:
-                color = (180, 180, 180)  # 淺灰色
+                color = (180, 180, 180)
             
             credit_text = credit_font.render(credit, True, color)
-            credit_rect = credit_text.get_rect(center=(SCREEN_WIDTH // 2, start_y + i * 18))
+            credit_rect = credit_text.get_rect(center=(left_x, safe_start_y + i * 14))  # 縮減為14像素間距
             screen.blit(credit_text, credit_rect)
+        
+        # 繪製右欄（Ship Battle 模式操作）  
+        right_x = SCREEN_WIDTH * 3 // 4  # 右欄位置
+        for i, credit in enumerate(right_credits):
+            if "Ship Battle 模式操作:" in credit:
+                color = CYAN
+            else:
+                color = (180, 180, 180)
+            
+            credit_text = credit_font.render(credit, True, color)
+            credit_rect = credit_text.get_rect(center=(right_x, safe_start_y + i * 14))  # 縮減為14像素間距
+            screen.blit(credit_text, credit_rect)
+        
+        # 繪製底部版權資訊
+        bottom_y = safe_start_y + len(left_credits) * 14 + 8  # 縮減間距
+        if bottom_y + 14 <= SCREEN_HEIGHT - 5:  # 確保不超出視窗底部
+            bottom_text = credit_font.render(bottom_credit, True, (150, 150, 150))
+            bottom_rect = bottom_text.get_rect(center=(SCREEN_WIDTH // 2, bottom_y))
+            screen.blit(bottom_text, bottom_rect)
     
     def handle_click(self, mouse_pos):
         """
