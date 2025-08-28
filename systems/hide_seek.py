@@ -446,7 +446,7 @@ class HideSeekSystem:
         screen (pygame.Surface): 遊戲畫面\n
         """
         font_size = HIDE_SEEK_UI["timer_font_size"]
-        chinese_font = get_chinese_font()
+        chinese_font = create_font(font_size)
         font = create_font(font_size)
         
         # 根據遊戲狀態顯示不同UI
@@ -482,7 +482,7 @@ class HideSeekSystem:
         y_offset = 100
         for i, player in enumerate(self.players):
             player_info = f"{player.name} ({player.spaceship_style}) - {player.potion_type}"
-            chinese_font = get_chinese_font()
+            chinese_font = create_font(FONT_SIZES["normal"])
             info_text = create_font(FONT_SIZES["normal"])
             info_surface = info_text.render(player_info, True, WHITE)
             screen.blit(info_surface, (50, y_offset + i * 25))
@@ -504,7 +504,7 @@ class HideSeekSystem:
             role_text = "你是搜尋者！" if self.human_player.role == "seeker" else "你是躲藏者！"
             role_color = RED if self.human_player.role == "seeker" else GREEN
             
-            chinese_font = get_chinese_font()
+            chinese_font = create_font(HIDE_SEEK_UI["role_font_size"])
             role_font = create_font(HIDE_SEEK_UI["role_font_size"])
             role_surface = role_font.render(role_text, True, role_color)
             role_rect = role_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))

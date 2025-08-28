@@ -16,6 +16,7 @@ from systems import check_collision, UISystem, ShopSystem, MenuSystem, ShipBattl
 GAME_STATE_MENU = "menu"
 GAME_STATE_PLAYING = "playing"
 GAME_STATE_BOSS_FIGHT = "boss_fight"
+GAME_STATE_BOSS_FIGHT_MODE = "boss_fight_mode"
 GAME_STATE_VICTORY = "victory"
 GAME_STATE_GAME_OVER = "game_over"
 GAME_STATE_SHIP_BATTLE = "ship_battle"
@@ -64,6 +65,7 @@ class GameController:
         self.ship_battle_system = ShipBattleSystem()
         self.visual_effects_system = VisualEffectsSystem()
         self.hide_seek_system = None  # 躲貓貓系統（按需創建）
+        self.boss_fight_system = None  # Boss Fight系統（按需創建）
         
         # 遊戲狀態管理
         self.game_state = GAME_STATE_MENU
@@ -127,6 +129,22 @@ class GameController:
         # 切換到躲貓貓狀態
         self.game_state = GAME_STATE_HIDE_SEEK
     
+    def start_boss_fight_mode(self):
+        """
+        開始 Boss Fight 模式\n
+        """
+        print("開始 Boss Fight 模式")
+        
+        # 直接從 systems 導入
+        from systems import BossFightSystem
+        
+        # 創建 Boss Fight 系統
+        player_name = self.menu_system.get_player_name()
+        self.boss_fight_system = BossFightSystem(player_name)
+        
+        # 切換到 Boss Fight 狀態
+        self.game_state = GAME_STATE_BOSS_FIGHT_MODE
+    
     def handle_events(self):
         """
         處理遊戲事件\n
@@ -149,6 +167,8 @@ class GameController:
                             self.start_ship_battle()
                         elif action == "hide_seek":
                             self.start_hide_seek()
+                        elif action == "boss_fight":
+                            self.start_boss_fight_mode()
             
             elif event.type == pygame.KEYDOWN:
                 if self.game_state == GAME_STATE_MENU:
@@ -165,6 +185,8 @@ class GameController:
                             self.start_ship_battle()
                         elif action == "hide_seek":
                             self.start_hide_seek()
+                        elif action == "boss_fight":
+                            self.start_boss_fight_mode()
                 
                 elif self.game_state == GAME_STATE_SHIP_BATTLE:
                     # Ship Battle 模式不需要特殊按鍵處理，所有邏輯在 update 中
@@ -256,6 +278,27 @@ class GameController:
                     self.game_state = GAME_STATE_MENU
             
             return  # 躲貓貓模式不執行下面的邏輯
+        
+        # Boss Fight 模式的更新邏輯
+        if self.game_state == GAME_STATE_BOSS_FIGHT_MODE:
+            if self.boss_fight_system:
+                keys = pygame.key.get_pressed()
+                result = self.boss_fight_system.update(keys)
+                
+                if result == "victory":
+                    print("Boss Fight 模式完成，恭喜擊敗所有Boss！")
+                    self.boss_fight_system = None
+                    self.game_state = GAME_STATE_MENU
+                elif result == "defeat":
+                    print("Boss Fight 模式失敗，被Boss擊敗")
+                    self.boss_fight_system = None
+                    self.game_state = GAME_STATE_MENU
+                elif result == "quit":
+                    print("退出 Boss Fight 模式")
+                    self.boss_fight_system = None
+                    self.game_state = GAME_STATE_MENU
+            
+            return  # Boss Fight 模式不執行下面的邏輯
         
         # 只有在一般遊戲狀態才更新遊戲邏輯
         if self.game_state not in [GAME_STATE_PLAYING, GAME_STATE_BOSS_FIGHT]:
@@ -546,6 +589,11 @@ class GameController:
             # 繪製躲貓貓遊戲
             if self.hide_seek_system:
                 self.hide_seek_system.draw(self.screen)
+        
+        elif self.game_state == GAME_STATE_BOSS_FIGHT_MODE:
+            # 繪製 Boss Fight 模式
+            if self.boss_fight_system:
+                self.boss_fight_system.draw(self.screen)
         
         else:
             # 清空螢幕（填滿黑色）

@@ -495,6 +495,7 @@ HIDE_SEEK_UI = {
 }
 
 # 躲貓貓AI行為設定
+######################躲貓貓AI行為設定######################
 HIDE_SEEK_AI = {
     "movement_change_interval": 60,    # AI每1秒改變移動方向（更快反應）
     "seek_update_interval": 30,        # 搜尋者AI每0.5秒更新目標（更頻繁）
@@ -506,3 +507,160 @@ HIDE_SEEK_AI = {
     "potion_use_health_threshold": 50, # AI在血量低於50%時使用道具
     "potion_use_cooldown": 600         # AI使用道具的冷卻時間（10秒）
 }
+
+######################Boss Fight 模式設定######################
+# Boss Fight 遊戲狀態
+GAME_STATE_BOSS_FIGHT_MODE = "boss_fight_mode"
+
+# Boss Fight 模式設定
+BOSS_FIGHT_SETTINGS = {
+    "total_bosses": 8,                    # 總共8個Boss
+    "player_health": 100,                 # 玩家初始生命值
+    "health_potion_count": 3,             # 治療藥水初始數量
+    "health_potion_heal": 50,             # 每個藥水回復的生命值
+    "victory_display_time": 180,          # 勝利畫面顯示時間（3秒）
+    "defeat_display_time": 180,           # 失敗畫面顯示時間（3秒）
+    "boss_spawn_delay": 120,              # Boss生成延遲時間（2秒）
+}
+
+# 8個Boss的詳細配置
+BOSS_FIGHT_BOSSES = {
+    1: {
+        "name": "Asteroid Guardian",
+        "health": 200,
+        "speed": 1.5,
+        "attack_damage": 15,
+        "attack_cooldown": 90,
+        "special_attack_cooldown": 300,
+        "color": (150, 75, 0),
+        "width": 60,
+        "height": 45,
+        "score": 100,
+        "description": "第一關Boss - 小行星守護者"
+    },
+    2: {
+        "name": "Plasma Sentinel",
+        "health": 250,
+        "speed": 2,
+        "attack_damage": 20,
+        "attack_cooldown": 75,
+        "special_attack_cooldown": 270,
+        "color": (0, 150, 75),
+        "width": 65,
+        "height": 50,
+        "score": 150,
+        "description": "第二關Boss - 等離子哨兵"
+    },
+    3: {
+        "name": "Crystal Destroyer",
+        "health": 300,
+        "speed": 1.8,
+        "attack_damage": 25,
+        "attack_cooldown": 60,
+        "special_attack_cooldown": 240,
+        "color": (75, 0, 150),
+        "width": 70,
+        "height": 55,
+        "score": 200,
+        "description": "第三關Boss - 水晶毀滅者"
+    },
+    4: {
+        "name": "Void Stalker",
+        "health": 350,
+        "speed": 2.5,
+        "attack_damage": 30,
+        "attack_cooldown": 50,
+        "special_attack_cooldown": 210,
+        "color": (100, 100, 100),
+        "width": 75,
+        "height": 60,
+        "score": 250,
+        "description": "第四關Boss - 虛空追蹤者"
+    },
+    5: {
+        "name": "Nebula Warden",
+        "health": 400,
+        "speed": 2.2,
+        "attack_damage": 35,
+        "attack_cooldown": 45,
+        "special_attack_cooldown": 180,
+        "color": (150, 150, 0),
+        "width": 80,
+        "height": 65,
+        "score": 300,
+        "description": "第五關Boss - 星雲守護者"
+    },
+    6: {
+        "name": "Cosmic Behemoth",
+        "health": 500,
+        "speed": 1.5,
+        "attack_damage": 40,
+        "attack_cooldown": 40,
+        "special_attack_cooldown": 150,
+        "color": (150, 0, 0),
+        "width": 85,
+        "height": 70,
+        "score": 400,
+        "description": "第六關Boss - 宇宙巨獸"
+    },
+    7: {
+        "name": "Shadow Emperor",
+        "health": 600,
+        "speed": 3,
+        "attack_damage": 45,
+        "attack_cooldown": 35,
+        "special_attack_cooldown": 120,
+        "color": (50, 0, 50),
+        "width": 90,
+        "height": 75,
+        "score": 500,
+        "description": "第七關Boss - 暗影皇帝"
+    },
+    8: {
+        "name": "Galaxy Overlord",
+        "health": 800,
+        "speed": 2.8,
+        "attack_damage": 50,
+        "attack_cooldown": 30,
+        "special_attack_cooldown": 90,
+        "color": (255, 0, 255),
+        "width": 100,
+        "height": 80,
+        "score": 1000,
+        "description": "最終Boss - 銀河霸主"
+    }
+}
+
+# Boss Fight 治療藥水設定
+BOSS_FIGHT_POTIONS = {
+    "heal_amount": 50,                    # 每瓶藥水回復生命值
+    "max_potions": 3,                     # 每場戰鬥最多藥水數
+    "random_drop_chance": 30,             # 擊敗Boss後30%機率獲得額外藥水
+    "potion_color": (0, 255, 0),          # 藥水顏色（綠色）
+    "potion_size": 20                     # 藥水圖示大小
+}
+
+# Boss Fight UI設定
+BOSS_FIGHT_UI = {
+    "boss_health_bar_width": 400,
+    "boss_health_bar_height": 20,
+    "boss_health_bar_x": 200,
+    "boss_health_bar_y": 50,
+    "player_health_bar_width": 200,
+    "player_health_bar_height": 15,
+    "player_health_bar_x": 50,
+    "player_health_bar_y": SCREEN_HEIGHT - 50,
+    "potion_counter_x": 300,
+    "potion_counter_y": SCREEN_HEIGHT - 50,
+    "boss_name_font_size": 32,
+    "progress_font_size": 24
+}
+
+######################遊戲狀態常數######################
+GAME_STATE_MENU = "menu"
+GAME_STATE_PLAYING = "playing"
+GAME_STATE_BOSS_FIGHT = "boss_fight"
+GAME_STATE_VICTORY = "victory"
+GAME_STATE_GAME_OVER = "game_over"
+GAME_STATE_SHIP_BATTLE = "ship_battle"
+GAME_STATE_HIDE_SEEK = "hide_seek"

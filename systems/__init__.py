@@ -9,6 +9,7 @@
 - ship_battle: Ship Battle 對戰系統
 - visual_effects: 視覺效果系統
 - hide_seek: 躲貓貓遊戲系統
+- boss_fight: Boss Fight 模式系統
 
 這些系統負責處理遊戲邏輯，與遊戲物件分離，提高程式碼的模組化程度。
 """
@@ -20,5 +21,6 @@ from .menu import MenuSystem
 from .ship_battle import ShipBattleSystem
 from .visual_effects import VisualEffectsSystem
 from .hide_seek import HideSeekSystem
+from .boss_fight import BossFightSystem
 
-__all__ = ['check_collision', 'UISystem', 'ShopSystem', 'MenuSystem', 'ShipBattleSystem', 'VisualEffectsSystem', 'HideSeekSystem']
+__all__ = ['check_collision', 'UISystem', 'ShopSystem', 'MenuSystem', 'ShipBattleSystem', 'VisualEffectsSystem', 'HideSeekSystem', 'BossFightSystem']
