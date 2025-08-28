@@ -446,7 +446,8 @@ class HideSeekSystem:
         screen (pygame.Surface): 遊戲畫面\n
         """
         font_size = HIDE_SEEK_UI["timer_font_size"]
-        font = pygame.font.Font(None, font_size)
+        chinese_font = get_chinese_font()
+        font = create_font(font_size)
         
         # 根據遊戲狀態顯示不同UI
         if self.game_state == GAME_STATE_HIDE_SEEK_LOBBY:
@@ -481,8 +482,10 @@ class HideSeekSystem:
         y_offset = 100
         for i, player in enumerate(self.players):
             player_info = f"{player.name} ({player.spaceship_style}) - {player.potion_type}"
-            info_text = pygame.font.Font(None, 24).render(player_info, True, WHITE)
-            screen.blit(info_text, (50, y_offset + i * 25))
+            chinese_font = get_chinese_font()
+            info_text = create_font(FONT_SIZES["normal"])
+            info_surface = info_text.render(player_info, True, WHITE)
+            screen.blit(info_surface, (50, y_offset + i * 25))
     
     def _draw_teleport_ui(self, screen, font):
         """
@@ -501,7 +504,8 @@ class HideSeekSystem:
             role_text = "你是搜尋者！" if self.human_player.role == "seeker" else "你是躲藏者！"
             role_color = RED if self.human_player.role == "seeker" else GREEN
             
-            role_font = pygame.font.Font(None, HIDE_SEEK_UI["role_font_size"])
+            chinese_font = get_chinese_font()
+            role_font = create_font(HIDE_SEEK_UI["role_font_size"])
             role_surface = role_font.render(role_text, True, role_color)
             role_rect = role_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
             screen.blit(role_surface, role_rect)
@@ -527,14 +531,14 @@ class HideSeekSystem:
             # 道具資訊
             potion_name = HIDE_SEEK_POTIONS[self.human_player.potion_type]["name"]
             potion_text = f"道具：{potion_name} ({self.human_player.potion_uses}次)"
-            potion_surface = pygame.font.Font(None, 24).render(potion_text, True, WHITE)
+            potion_surface = create_font(FONT_SIZES["normal"]).render(potion_text, True, WHITE)
             screen.blit(potion_surface, (10, 40))
             
             # 攻擊冷卻
             if self.human_player.special_attack_cooldown > 0:
                 cooldown_seconds = self.human_player.special_attack_cooldown // 60 + 1
                 cooldown_text = f"攻擊冷卻：{cooldown_seconds}秒"
-                cooldown_surface = pygame.font.Font(None, 24).render(cooldown_text, True, YELLOW)
+                cooldown_surface = create_font(FONT_SIZES["normal"]).render(cooldown_text, True, YELLOW)
                 screen.blit(cooldown_surface, (10, 70))
         
         # 存活玩家統計
@@ -542,18 +546,18 @@ class HideSeekSystem:
         alive_hiders = len([p for p in self.hiders if p.alive])
         
         stats_text = f"搜尋者：{alive_seekers}  躲藏者：{alive_hiders}"
-        stats_surface = pygame.font.Font(None, 28).render(stats_text, True, WHITE)
+        stats_surface = create_font(28).render(stats_text, True, WHITE)
         stats_rect = stats_surface.get_rect(center=(SCREEN_WIDTH // 2, 30))
         screen.blit(stats_surface, stats_rect)
         
         # 幽靈模式提示
         if self.human_ghost:
-            ghost_font = pygame.font.Font(None, HIDE_SEEK_UI["ghost_message_font_size"])
+            ghost_font = create_font(HIDE_SEEK_UI["ghost_message_font_size"])
             ghost_text = ghost_font.render("你已死亡 - 幽靈模式", True, (150, 150, 150))
             ghost_rect = ghost_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 50))
             screen.blit(ghost_text, ghost_rect)
             
-            choice_text = pygame.font.Font(None, 24).render("按 E 繼續觀戰，按 T 返回主畫面", True, WHITE)
+            choice_text = create_font(FONT_SIZES["normal"]).render("按 E 繼續觀戰，按 T 返回主畫面", True, WHITE)
             choice_rect = choice_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 20))
             screen.blit(choice_text, choice_rect)
     
@@ -568,14 +572,14 @@ class HideSeekSystem:
         screen.blit(overlay, (0, 0))
         
         # 勝負訊息
-        result_font = pygame.font.Font(None, HIDE_SEEK_UI["countdown_font_size"])
+        result_font = create_font(HIDE_SEEK_UI["countdown_font_size"])
         result_text = result_font.render(self.victory_message, True, YELLOW)
         result_rect = result_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
         screen.blit(result_text, result_rect)
         
         # 返回提示
         if self.game_over_timer <= 0:
-            return_text = pygame.font.Font(None, 36).render("按任意鍵返回主畫面", True, WHITE)
+            return_text = create_font(FONT_SIZES["medium"]).render("按任意鍵返回主畫面", True, WHITE)
             return_rect = return_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 80))
             screen.blit(return_text, return_rect)
         else:
@@ -585,7 +589,7 @@ class HideSeekSystem:
         """
         繪製操作說明\n
         """
-        controls_font = pygame.font.Font(None, 20)
+        controls_font = create_font(FONT_SIZES["small"])
         controls = ["WASD/方向鍵: 移動", "空格: 特殊攻擊", "E: 使用道具", "Q: 退出遊戲"]
         
         for i, control in enumerate(controls):
@@ -742,7 +746,7 @@ class HideSeekMiniMap:
         screen.blit(self.minimap_surface, (map_x, map_y))
         
         # 繪製小地圖標題
-        font = pygame.font.Font(None, 20)
+        font = create_font(FONT_SIZES["small"])
         title_text = font.render("地圖", True, WHITE)
         screen.blit(title_text, (map_x, map_y - 25))
         

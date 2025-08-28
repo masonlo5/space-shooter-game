@@ -29,9 +29,9 @@ class MenuSystem:
         """
         # 初始化字體
         pygame.font.init()
-        self.title_font = pygame.font.Font(None, MENU_TITLE_SIZE)
-        self.button_font = pygame.font.Font(None, MENU_BUTTON_SIZE)
-        self.small_font = pygame.font.Font(None, 20)
+        self.title_font = create_font(MENU_TITLE_SIZE)
+        self.button_font = create_font(MENU_BUTTON_SIZE)
+        self.small_font = create_font(FONT_SIZES["small"])
         
         # 計算開始按鈕位置（螢幕中央偏下）
         button_x = (SCREEN_WIDTH - MENU_BUTTON_WIDTH) // 2
@@ -187,7 +187,7 @@ class MenuSystem:
             screen.blit(glow_text, glow_rect)
         
         # 副標題
-        subtitle_font = pygame.font.Font(None, 28)
+        subtitle_font = create_font(28)
         subtitle_text = subtitle_font.render("Space Shooter Game", True, YELLOW)
         subtitle_rect = subtitle_text.get_rect(center=(SCREEN_WIDTH // 2, title_rect.bottom + 20))
         screen.blit(subtitle_text, subtitle_rect)
@@ -299,7 +299,7 @@ class MenuSystem:
         參數:\n
         screen (pygame.Surface): 遊戲畫面物件\n
         """
-        credit_font = pygame.font.Font(None, 16)
+        credit_font = create_font(FONT_SIZES["mini"])
         
         # 版權資訊
         credits = [

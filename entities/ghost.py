@@ -216,7 +216,7 @@ class Ghost:
         x (int): 螢幕X座標\n
         y (int): 螢幕Y座標\n
         """
-        font = pygame.font.Font(None, 18)
+        font = create_font(18)
         name_text = font.render(f"{self.name} (幽靈)", True, self.color)
         name_rect = name_text.get_rect(center=(x, y + self.height // 2 + 12))
         screen.blit(name_text, name_rect)

@@ -229,7 +229,7 @@ class Boss:
         pygame.draw.rect(screen, WHITE, (bar_x, bar_y, bar_width, bar_height), 2)
         
         # Boss名稱和血量文字
-        font = pygame.font.Font(None, 24)
+        font = create_font(FONT_SIZES["normal"])
         boss_text = font.render(f"BOSS: {self.health}/{self.max_health}", True, WHITE)
         text_rect = boss_text.get_rect(center=(SCREEN_WIDTH // 2, bar_y + bar_height + 15))
         screen.blit(boss_text, text_rect)

@@ -20,8 +20,8 @@ class ShopSystem:
         """
         # 初始化字體
         pygame.font.init()
-        self.font = pygame.font.Font(None, 36)
-        self.small_font = pygame.font.Font(None, 24)
+        self.font = create_font(FONT_SIZES["medium"])
+        self.small_font = create_font(FONT_SIZES["normal"])
     
     def draw_shop(self, screen, stars):
         """

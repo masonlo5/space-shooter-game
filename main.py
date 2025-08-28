@@ -582,7 +582,7 @@ class GameController:
             
             # 顯示敵人擊殺計數和Boss觸發進度
             if self.game_state == GAME_STATE_PLAYING:
-                progress_font = pygame.font.Font(None, 24)
+                progress_font = create_font(FONT_SIZES["normal"])
                 remaining = BOSS_TRIGGER_KILLS - enemies_killed
                 if remaining > 0:
                     progress_text = progress_font.render(f"Boss 出現倒數: {remaining} 敵人", True, YELLOW)
@@ -625,9 +625,9 @@ class GameController:
         self.screen.blit(overlay, (0, 0))
         
         # 遊戲結束文字
-        font_large = pygame.font.Font(None, 72)
-        font_medium = pygame.font.Font(None, 36)
-        font_small = pygame.font.Font(None, 24)
+        font_large = create_font(FONT_SIZES["extra_large"])
+        font_medium = create_font(FONT_SIZES["medium"])
+        font_small = create_font(FONT_SIZES["normal"])
         
         game_over_text = font_large.render("GAME OVER", True, RED)
         game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 80))
@@ -662,9 +662,9 @@ class GameController:
         self.screen.blit(overlay, (0, 0))
         
         # 勝利文字
-        font_large = pygame.font.Font(None, 72)
-        font_medium = pygame.font.Font(None, 36)
-        font_small = pygame.font.Font(None, 24)
+        font_large = create_font(FONT_SIZES["extra_large"])
+        font_medium = create_font(FONT_SIZES["medium"])
+        font_small = create_font(FONT_SIZES["normal"])
         
         victory_text = font_large.render("VICTORY!", True, YELLOW)
         victory_rect = victory_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 80))

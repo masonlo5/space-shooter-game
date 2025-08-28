@@ -1,5 +1,83 @@
 ######################載入套件######################
 import pygame
+import os
+
+######################字體系統設定######################
+# 繁體中文字體檔案路徑（依序嘗試）
+CHINESE_FONT_FILES = [
+    "/System/Library/Fonts/STHeiti Medium.ttc",        # macOS 黑體（推薦）
+    "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",  # Arial Unicode 
+    "/Library/Fonts/Arial Unicode.ttf",                # 備用 Arial Unicode
+    "/System/Library/Fonts/STHeiti Light.ttc"          # 備用黑體
+]
+
+def get_working_font_path():
+    """
+    測試並返回第一個可用的中文字體檔案路徑
+    
+    回傳:
+    str 或 None: 可用的字體檔案路徑，或 None 表示使用預設字體
+    """
+    import os
+    import pygame.font
+    
+    pygame.font.init()
+    
+    for font_path in CHINESE_FONT_FILES:
+        if os.path.exists(font_path):
+            try:
+                # 測試字體檔案是否可以正常載入
+                test_font = pygame.font.Font(font_path, 24)
+                # 測試是否能渲染中文字元
+                test_surface = test_font.render("測試中文", True, (255, 255, 255))
+                if test_surface.get_width() > 0:
+                    return font_path
+            except:
+                continue
+    
+    # 如果所有字體檔案都不可用，返回 None
+    return None
+
+def create_font(size):
+    """
+    創建支援繁體中文的字體物件 - 使用直接字體檔案路徑
+    
+    參數:
+    size (int): 字體大小
+    
+    回傳:
+    pygame.font.Font: 字體物件
+    """
+    import pygame.font
+    
+    pygame.font.init()
+    
+    # 取得可用的字體檔案路徑
+    font_path = get_working_font_path()
+    
+    if font_path:
+        try:
+            # 使用字體檔案直接創建字體物件
+            return pygame.font.Font(font_path, size)
+        except Exception as e:
+            print(f"警告：無法載入字體檔案 {font_path}: {e}")
+    
+    # 如果字體檔案不可用，嘗試系統字體作為最後備援
+    try:
+        return pygame.font.SysFont("Arial", size)
+    except:
+        # 最後的備援：pygame 預設字體
+        return pygame.font.Font(None, size)
+
+# 字體大小設定
+FONT_SIZES = {
+    "extra_large": 72,    # 超大字體（標題）
+    "large": 48,          # 大字體（副標題）
+    "medium": 36,         # 中等字體（按鈕）
+    "normal": 24,         # 一般字體（內容）
+    "small": 20,          # 小字體（說明）
+    "mini": 16            # 極小字體（註解）
+}
 
 ######################遊戲基本設定######################
 # 螢幕尺寸設定

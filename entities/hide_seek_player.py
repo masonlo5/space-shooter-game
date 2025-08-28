@@ -707,7 +707,7 @@ class HideSeekPlayer:
         x (int): 螢幕X座標\n
         y (int): 螢幕Y座標\n
         """
-        font = pygame.font.Font(None, 20)
+        font = create_font(FONT_SIZES["small"])
         
         # 根據角色身分選擇顏色
         if self.role == "seeker":

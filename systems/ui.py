@@ -20,8 +20,8 @@ class UISystem:
         """
         # 初始化字體
         pygame.font.init()
-        self.font = pygame.font.Font(None, 36)
-        self.small_font = pygame.font.Font(None, 24)
+        self.font = create_font(FONT_SIZES["medium"])
+        self.small_font = create_font(FONT_SIZES["normal"])
     
     def draw_ui(self, screen, player, score, stars):
         """
@@ -167,13 +167,13 @@ class UISystem:
         screen.blit(overlay, (0, 0))
         
         # 標題
-        title_font = pygame.font.Font(None, SHIP_BATTLE_UI["prepare_font_size"])
+        title_font = create_font(SHIP_BATTLE_UI["prepare_font_size"])
         title_text = title_font.render("Ship Battle", True, WHITE)
         title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 3))
         screen.blit(title_text, title_rect)
         
         # 對戰雙方名稱
-        name_font = pygame.font.Font(None, SHIP_BATTLE_UI["name_font_size"])
+        name_font = create_font(SHIP_BATTLE_UI["name_font_size"])
         
         # 玩家名稱（左側）
         player_text = name_font.render(player_name, True, GREEN)
@@ -249,7 +249,7 @@ class UISystem:
         bar_height = SHIP_BATTLE_UI["health_bar_height"]
         
         # 角色名稱
-        name_font = pygame.font.Font(None, SHIP_BATTLE_UI["name_font_size"])
+        name_font = create_font(SHIP_BATTLE_UI["name_font_size"])
         name_text = name_font.render(name, True, WHITE)
         screen.blit(name_text, (x, y - 25))
         
@@ -319,7 +319,7 @@ class UISystem:
         screen.blit(overlay, (0, 0))
         
         # 結果文字
-        result_font = pygame.font.Font(None, SHIP_BATTLE_UI["result_font_size"])
+        result_font = create_font(SHIP_BATTLE_UI["result_font_size"])
         
         if battle_state == "victory":
             result_text = result_font.render("Victory", True, GREEN)
