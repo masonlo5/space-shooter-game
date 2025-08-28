@@ -77,15 +77,42 @@ class UISystem:
             special_text = self.small_font.render("Special Attack: Ready!", True, GREEN)
         screen.blit(special_text, (10, 180))
         
-        # 操作說明
-        controls_y = SCREEN_HEIGHT - 120
+        # 藥水庫存顯示
+        potions_y = 200
+        
+        # 回血藥水
+        health_potion_text = self.small_font.render(f"Health Potions: {player.health_potions} (Press 1)", True, GREEN)
+        screen.blit(health_potion_text, (10, potions_y))
+        
+        # 加速藥水
+        speed_potion_text = self.small_font.render(f"Speed Potions: {player.speed_potions} (Press 2)", True, BLUE)
+        screen.blit(speed_potion_text, (10, potions_y + 20))
+        
+        # 防護藥水
+        protect_potion_text = self.small_font.render(f"Protect Potions: {player.protect_potions} (Press 3)", True, PURPLE)
+        screen.blit(protect_potion_text, (10, potions_y + 40))
+        
+        # 藥水效果狀態顯示
+        effects_y = potions_y + 60
+        if player.speed_boost_timer > 0:
+            speed_effect_text = self.small_font.render(f"Speed Boost: {player.speed_boost_timer // 60 + 1}s", True, CYAN)
+            screen.blit(speed_effect_text, (10, effects_y))
+            effects_y += 20
+        
+        if player.protect_boost_timer > 0:
+            protect_effect_text = self.small_font.render(f"Protection: {player.protect_boost_timer // 60 + 1}s", True, YELLOW)
+            screen.blit(protect_effect_text, (10, effects_y))
+        
+        # 操作說明（調整位置以避免與藥水顯示重疊）
+        controls_y = SCREEN_HEIGHT - 140
         controls = [
             "Controls:",
             "Arrow Keys / WASD: Move",
             "Ctrl/Shift: Shoot",
             "Space: Change Weapon",
             "C: Change Ship",
-            "X: Special Attack"
+            "X: Special Attack",
+            "1/2/3: Use Potions"
         ]
         
         for i, control in enumerate(controls):

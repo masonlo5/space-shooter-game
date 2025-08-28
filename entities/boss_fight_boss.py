@@ -80,9 +80,12 @@ class BossFightBoss:
                 new_y = self.y + random.randint(-20, 20)
                 self.y = max(30, min(150, new_y))  # 限制在上半部
     
-    def update(self):
+    def update(self, sounds=None):
         """
         更新 Boss 狀態並返回新產生的子彈\n
+        \n
+        參數:\n
+        sounds (dict): 音效字典（可選）\n
         \n
         回傳:\n
         list: 新產生的子彈列表\n

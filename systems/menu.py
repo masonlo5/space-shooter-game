@@ -65,13 +65,15 @@ class MenuSystem:
             
             elif event.key == pygame.K_BACKSPACE:
                 # 刪除字元
-                self.player_name = self.player_name[:-1]
-                print(f"刪除字元，目前名稱：'{self.player_name}'")
+                if len(self.player_name) > 0:
+                    self.player_name = self.player_name[:-1]
+                    print(f"刪除字元，目前名稱：'{self.player_name}'")
         
         elif event.type == pygame.TEXTINPUT:
             # 處理文字輸入（只有在編輯模式時）
             if len(self.player_name) < 15:  # 最多15個字元
                 char = event.text
+                # 檢查字元是否有效（排除不可見字元和特殊字元）
                 if char.isprintable() and char not in ['/', '\\', ':', '*', '?', '"', '<', '>', '|']:
                     self.player_name += char
                     print(f"新增字元：'{char}'，目前名稱：'{self.player_name}'")
@@ -117,12 +119,13 @@ class MenuSystem:
         
         return None
     
-    def draw_menu(self, screen):
+    def draw_menu(self, screen, mouse_pos=None):
         """
         繪製主畫面\n
         \n
         參數:\n
         screen (pygame.Surface): 遊戲畫面物件\n
+        mouse_pos (tuple): 滑鼠位置 (x, y)，可選參數\n
         """
         # 清空螢幕（深藍色太空背景）
         space_blue = (10, 10, 40)
@@ -135,10 +138,10 @@ class MenuSystem:
         self._draw_title(screen)
         
         # 繪製玩家名稱區域
-        self._draw_player_name_section(screen)
+        self._draw_player_name_section(screen, mouse_pos)
         
         # 繪製遊戲模式選擇
-        self._draw_game_mode_buttons(screen)
+        self._draw_game_mode_buttons(screen, mouse_pos)
         
         # 繪製操作說明
         self._draw_instructions(screen)
@@ -197,22 +200,29 @@ class MenuSystem:
         subtitle_rect = subtitle_text.get_rect(center=(SCREEN_WIDTH // 2, title_rect.bottom + 20))
         screen.blit(subtitle_text, subtitle_rect)
     
-    def _draw_player_name_section(self, screen):
+    def _draw_player_name_section(self, screen, mouse_pos=None):
         """
         繪製玩家名稱區域\n
         \n
         參數:\n
         screen (pygame.Surface): 遊戲畫面物件\n
+        mouse_pos (tuple): 滑鼠位置 (x, y)，可選參數\n
         """
         # 玩家名稱標籤
         name_label = self.button_font.render("玩家名稱:", True, WHITE)
         name_label_rect = name_label.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 60))
         screen.blit(name_label, name_label_rect)
         
+        # 檢查是否 hover 在名稱輸入框上
+        is_hovering = mouse_pos and self.name_input_rect.collidepoint(mouse_pos)
+        
         # 名稱輸入框背景
         if self.is_editing_name:
             input_color = (100, 100, 100)  # 編輯中時較亮
             border_color = GREEN
+        elif is_hovering:
+            input_color = (70, 70, 70)     # hover 時稍微變亮
+            border_color = CYAN
         else:
             input_color = (50, 50, 50)     # 非編輯時較暗
             border_color = WHITE
@@ -236,16 +246,21 @@ class MenuSystem:
             edit_hint_rect = edit_hint.get_rect(center=(SCREEN_WIDTH // 2, self.name_input_rect.bottom + 15))
             screen.blit(edit_hint, edit_hint_rect)
     
-    def _draw_game_mode_buttons(self, screen):
+    def _draw_game_mode_buttons(self, screen, mouse_pos=None):
         """
         繪製遊戲模式按鈕\n
         \n
         參數:\n
         screen (pygame.Surface): 遊戲畫面物件\n
+        mouse_pos (tuple): 滑鼠位置 (x, y)，可選參數\n
         """
         # 一般遊戲模式按鈕
         normal_button_rect = pygame.Rect(SCREEN_WIDTH // 2 - 200, SCREEN_HEIGHT // 2 + 30, 90, 40)
-        pygame.draw.rect(screen, (50, 50, 50), normal_button_rect)
+        is_hovering_normal = mouse_pos and normal_button_rect.collidepoint(mouse_pos)
+        
+        # 背景顏色隨 hover 狀態變化
+        normal_bg_color = (70, 70, 70) if is_hovering_normal else (50, 50, 50)
+        pygame.draw.rect(screen, normal_bg_color, normal_button_rect)
         pygame.draw.rect(screen, GREEN, normal_button_rect, 2)
         
         normal_text = self.small_font.render("一般模式", True, WHITE)
@@ -254,7 +269,10 @@ class MenuSystem:
         
         # Ship Battle 模式按鈕
         battle_button_rect = pygame.Rect(SCREEN_WIDTH // 2 - 95, SCREEN_HEIGHT // 2 + 30, 90, 40)
-        pygame.draw.rect(screen, (50, 50, 50), battle_button_rect)
+        is_hovering_battle = mouse_pos and battle_button_rect.collidepoint(mouse_pos)
+        
+        battle_bg_color = (70, 70, 70) if is_hovering_battle else (50, 50, 50)
+        pygame.draw.rect(screen, battle_bg_color, battle_button_rect)
         pygame.draw.rect(screen, RED, battle_button_rect, 2)
         
         battle_text = self.small_font.render("Ship Battle", True, WHITE)
@@ -263,7 +281,10 @@ class MenuSystem:
         
         # 躲貓貓模式按鈕
         hide_seek_button_rect = pygame.Rect(SCREEN_WIDTH // 2 + 10, SCREEN_HEIGHT // 2 + 30, 90, 40)
-        pygame.draw.rect(screen, (50, 50, 50), hide_seek_button_rect)
+        is_hovering_hide_seek = mouse_pos and hide_seek_button_rect.collidepoint(mouse_pos)
+        
+        hide_seek_bg_color = (70, 70, 70) if is_hovering_hide_seek else (50, 50, 50)
+        pygame.draw.rect(screen, hide_seek_bg_color, hide_seek_button_rect)
         pygame.draw.rect(screen, PURPLE, hide_seek_button_rect, 2)
         
         hide_seek_text = self.small_font.render("躲貓貓", True, WHITE)
@@ -272,7 +293,10 @@ class MenuSystem:
         
         # Boss Fight 模式按鈕
         boss_fight_button_rect = pygame.Rect(SCREEN_WIDTH // 2 + 115, SCREEN_HEIGHT // 2 + 30, 90, 40)
-        pygame.draw.rect(screen, (50, 50, 50), boss_fight_button_rect)
+        is_hovering_boss_fight = mouse_pos and boss_fight_button_rect.collidepoint(mouse_pos)
+        
+        boss_fight_bg_color = (70, 70, 70) if is_hovering_boss_fight else (50, 50, 50)
+        pygame.draw.rect(screen, boss_fight_bg_color, boss_fight_button_rect)
         pygame.draw.rect(screen, ORANGE, boss_fight_button_rect, 2)
         
         boss_fight_text = self.small_font.render("Boss Fight", True, WHITE)

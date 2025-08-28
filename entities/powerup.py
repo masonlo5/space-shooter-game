@@ -164,14 +164,16 @@ class PowerUp:
         if self.powerup_type == "star":
             return False, 1, False  # 不致命，獲得1顆星星，不返回主畫面
         elif self.powerup_type == "health_potion":
-            player.health = min(player.max_health, player.health + 30)  # 最多回復到最大值
+            # 將藥水添加到玩家庫存而不是直接使用
+            player.add_potion("health_potion")
             return False, 0, False
         elif self.powerup_type == "speed_potion":
-            player.speed = min(8, player.speed + 1)  # 最多加速到 8
+            # 將藥水添加到玩家庫存而不是直接使用
+            player.add_potion("speed_potion")
             return False, 0, False
         elif self.powerup_type == "protect_potion":
-            # 暫時防護效果（這裡簡化處理）
-            player.health = min(player.max_health, player.health + 50)
+            # 將藥水添加到玩家庫存而不是直接使用
+            player.add_potion("protect_potion")
             return False, 0, False
         elif self.powerup_type == "bomb":
             # 碰到炸彈會死亡
@@ -199,13 +201,19 @@ class PowerUp:
         chosen_potion = random.choice(potion_types)
         
         if chosen_potion == "health_potion":
-            player.health = min(player.max_health, player.health + 50)  # 禮物的回血效果更強
-            print("禮物效果：獲得強力回血藥水！")
+            # 給玩家2個回血藥水作為Boss獎勵
+            player.add_potion("health_potion")
+            player.add_potion("health_potion")
+            print("禮物效果：獲得 2 個強力回血藥水！")
         elif chosen_potion == "speed_potion":
-            player.speed = min(10, player.speed + 2)  # 禮物的加速效果更強
-            print("禮物效果：獲得強力加速藥水！")
+            # 給玩家2個加速藥水作為Boss獎勵
+            player.add_potion("speed_potion")
+            player.add_potion("speed_potion")
+            print("禮物效果：獲得 2 個強力加速藥水！")
         elif chosen_potion == "protect_potion":
-            player.health = min(player.max_health, player.health + 80)  # 禮物的防護效果更強
-            print("禮物效果：獲得強力防護藥水！")
+            # 給玩家2個防護藥水作為Boss獎勵
+            player.add_potion("protect_potion")
+            player.add_potion("protect_potion")
+            print("禮物效果：獲得 2 個強力防護藥水！")
         
         return chosen_potion

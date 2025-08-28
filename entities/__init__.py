@@ -26,6 +26,7 @@ from .firework import Firework
 from .hide_seek_player import HideSeekPlayer
 from .ghost import Ghost
 from .hide_seek_map import HideSeekMap
+from .ally_ship import AllyShip
 
 __all__ = ['Player', 'Robot', 'Enemy', 'Boss', 'Bullet', 'RobotBullet', 'PowerUp', 'Firework', 
-           'HideSeekPlayer', 'Ghost', 'HideSeekMap']
+           'HideSeekPlayer', 'Ghost', 'HideSeekMap', 'AllyShip']

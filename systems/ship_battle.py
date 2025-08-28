@@ -50,9 +50,12 @@ class ShipBattleSystem:
     result_timer (int): 結果顯示計時器\n
     """
     
-    def __init__(self):
+    def __init__(self, sounds=None):
         """
         初始化 Ship Battle 系統\n
+        \n
+        參數:\n
+        sounds (dict): 音效物件字典\n
         """
         # 戰鬥狀態
         self.battle_state = "inactive"  # inactive, prepare, fighting, victory, defeat
@@ -67,6 +70,9 @@ class ShipBattleSystem:
         
         # 玩家資訊
         self.player_name = "Player"
+        
+        # 音效系統
+        self.sounds = sounds or {}
         
         print("Ship Battle 系統初始化完成")
     
@@ -192,7 +198,11 @@ class ShipBattleSystem:
         
         # 更新機器人
         robot_bullets = self.robot.update(self.player.x, self.player.y)
-        self.robot_bullets.extend(robot_bullets)
+        if robot_bullets:  # 如果機器人發射了子彈
+            self.robot_bullets.extend(robot_bullets)
+            # 播放機器人射擊音效（音量稍小以區別）
+            from config import play_sound
+            play_sound(self.sounds, "laser_shoot", volume=0.6)
         
         # 更新子彈
         self._update_bullets()
@@ -220,11 +230,18 @@ class ShipBattleSystem:
             new_bullet = self.player.shoot()
             if new_bullet:
                 self.player_bullets.append(new_bullet)
+                # 播放玩家射擊音效
+                from config import play_sound
+                play_sound(self.sounds, "laser_shoot")
         
         # 玩家特殊攻擊（Space 鍵）
         if keys[pygame.K_SPACE]:
             special_bullets = self.player.special_attack()
-            self.player_bullets.extend(special_bullets)
+            if special_bullets:  # 只有成功發動特殊攻擊才播放音效
+                self.player_bullets.extend(special_bullets)
+                # 播放特殊攻擊音效
+                from config import play_sound
+                play_sound(self.sounds, "laser_shoot", volume=1.2)
         
         # 玩家使用血瓶（i 鍵）
         if keys[pygame.K_i]:

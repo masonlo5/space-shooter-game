@@ -85,9 +85,12 @@ class Boss:
         # 確保Boss不會移動到螢幕外
         self.y = max(10, min(100, self.y))
     
-    def update(self):
+    def update(self, sounds=None):
         """
         更新Boss狀態 - 包含攻擊計時器和攻擊判斷\n
+        \n
+        參數:\n
+        sounds (dict): 音效物件字典\n
         \n
         回傳:\n
         list: 產生的子彈清單\n
@@ -101,12 +104,22 @@ class Boss:
         # 垃圾攻擊（每2秒）
         if self.garbage_attack_timer >= BOSS_GARBAGE_ATTACK_INTERVAL:
             self.garbage_attack_timer = 0
-            bullets.extend(self.garbage_attack())
+            new_bullets = self.garbage_attack()
+            bullets.extend(new_bullets)
+            # 播放Boss攻擊音效
+            if new_bullets and sounds:
+                from config import play_sound
+                play_sound(sounds, "laser_shoot", volume=0.7)
         
         # 特殊攻擊（每5秒）
         if self.special_attack_timer >= BOSS_SPECIAL_ATTACK_INTERVAL:
             self.special_attack_timer = 0
-            bullets.extend(self.special_attack())
+            new_bullets = self.special_attack()
+            bullets.extend(new_bullets)
+            # 播放Boss特殊攻擊音效
+            if new_bullets and sounds:
+                from config import play_sound
+                play_sound(sounds, "laser_shoot", volume=0.9)
         
         return bullets
     

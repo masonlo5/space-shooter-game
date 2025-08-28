@@ -2,7 +2,7 @@
 import pygame
 import random
 from config import *
-from entities import Player, Bullet
+from entities import Player, Bullet, AllyShip
 
 ######################Boss Fight 系統類別######################
 class BossFightSystem:
@@ -17,18 +17,34 @@ class BossFightSystem:
     5. UI 繪製和進度顯示\n
     """
     
-    def __init__(self, player_name):
+    def __init__(self, player_name, sounds=None):
         """
         初始化 Boss Fight 系統\n
         \n
         參數:\n
         player_name (str): 玩家名稱\n
+        sounds (dict): 音效物件字典\n
         """
         # 玩家資訊
         self.player_name = player_name
         
+        # 音效系統
+        self.sounds = sounds or {}
+        
         # 初始化玩家物件
         self.player = Player(SCREEN_WIDTH // 2 - 25, SCREEN_HEIGHT - 80)
+        
+        # 初始化盟友太空船（左右兩艘）
+        left_ally_x = self.player.x - 80
+        right_ally_x = self.player.x + 80
+        ally_y = self.player.y + 20
+        
+        self.ally_ships = [
+            AllyShip(left_ally_x, ally_y, "left"),
+            AllyShip(right_ally_x, ally_y, "right")
+        ]
+        
+        print("創建了 2 艘盟友太空船")
         
         # 隨機選擇太空船類型
         self._assign_random_spaceship()
@@ -47,6 +63,7 @@ class BossFightSystem:
         
         # 遊戲物件列表
         self.player_bullets = []
+        self.ally_bullets = []  # 盟友子彈
         self.boss_bullets = []
         
         # 遊戲狀態
@@ -180,6 +197,9 @@ class BossFightSystem:
         # 更新玩家
         self._update_player(keys)
         
+        # 更新盟友太空船
+        self._update_ally_ships()
+        
         # 更新 Boss
         if self.current_boss:
             self._update_boss()
@@ -225,11 +245,18 @@ class BossFightSystem:
             new_bullet = self.player.shoot()
             if new_bullet:
                 self.player_bullets.append(new_bullet)
+                # 播放射擊音效
+                from config import play_sound
+                play_sound(self.sounds, "laser_shoot")
         
         # 特殊攻擊（X）
         if keys[pygame.K_x]:
             special_bullets = self.player.special_attack()
-            self.player_bullets.extend(special_bullets)
+            if special_bullets:  # 只有成功發動特殊攻擊才播放音效
+                self.player_bullets.extend(special_bullets)
+                # 播放特殊攻擊音效
+                from config import play_sound
+                play_sound(self.sounds, "laser_shoot", volume=1.2)
         
         # 使用治療藥水（E）
         if keys[pygame.K_e]:
@@ -237,6 +264,22 @@ class BossFightSystem:
         
         # 更新玩家內部狀態
         self.player.update()
+    
+    def _update_ally_ships(self):
+        """
+        更新盟友太空船\n
+        """
+        for ally in self.ally_ships:
+            # 更新盟友狀態，傳入玩家位置、Boss 位置和所有 Boss 子彈
+            ally_bullets = ally.update(
+                self.player, 
+                self.current_boss, 
+                self.boss_bullets
+            )
+            
+            # 添加盟友射擊的子彈
+            if ally_bullets:
+                self.ally_bullets.extend(ally_bullets)
     
     def _update_boss(self):
         """
@@ -249,7 +292,7 @@ class BossFightSystem:
         self.current_boss.move()
         
         # 更新 Boss 並獲取新產生的子彈
-        new_boss_bullets = self.current_boss.update()
+        new_boss_bullets = self.current_boss.update(self.sounds)
         self.boss_bullets.extend(new_boss_bullets)
     
     def _update_bullets(self):
@@ -261,6 +304,12 @@ class BossFightSystem:
             bullet.move()
             if bullet.is_off_screen():
                 self.player_bullets.remove(bullet)
+        
+        # 更新盟友子彈
+        for bullet in self.ally_bullets[:]:
+            bullet.move()
+            if bullet.is_off_screen():
+                self.ally_bullets.remove(bullet)
         
         # 更新 Boss 子彈
         for bullet in self.boss_bullets[:]:
@@ -284,6 +333,16 @@ class BossFightSystem:
                     self.current_boss.take_damage(bullet.damage)
                     self.player_bullets.remove(bullet)
         
+        # 盟友子彈打中 Boss
+        for bullet in self.ally_bullets[:]:
+            if self.current_boss:
+                if check_collision(bullet.x, bullet.y, bullet.width, bullet.height,
+                                 self.current_boss.x, self.current_boss.y, 
+                                 self.current_boss.width, self.current_boss.height):
+                    # 造成傷害
+                    self.current_boss.take_damage(bullet.damage)
+                    self.ally_bullets.remove(bullet)
+        
         # Boss 子彈打中玩家
         for bullet in self.boss_bullets[:]:
             if check_collision(bullet.x, bullet.y, bullet.width, bullet.height,
@@ -292,6 +351,16 @@ class BossFightSystem:
                 self.player.health -= bullet.damage
                 self.boss_bullets.remove(bullet)
         
+        # Boss 子彈打中盟友
+        for bullet in self.boss_bullets[:]:
+            for ally in self.ally_ships:
+                if check_collision(bullet.x, bullet.y, bullet.width, bullet.height,
+                                 ally.x, ally.y, ally.width, ally.height):
+                    # 盟友受傷
+                    ally.take_damage(bullet.damage)
+                    self.boss_bullets.remove(bullet)
+                    break  # 避免一個子彈打中多個盟友
+        
         # 玩家撞到 Boss
         if self.current_boss:
             if check_collision(self.player.x, self.player.y, self.player.width, self.player.height,
@@ -299,6 +368,15 @@ class BossFightSystem:
                              self.current_boss.width, self.current_boss.height):
                 # 嚴重傷害
                 self.player.health -= 30
+        
+        # 盟友撞到 Boss
+        if self.current_boss:
+            for ally in self.ally_ships:
+                if check_collision(ally.x, ally.y, ally.width, ally.height,
+                                 self.current_boss.x, self.current_boss.y, 
+                                 self.current_boss.width, self.current_boss.height):
+                    # 盟友受傷
+                    ally.take_damage(20)
     
     def _use_health_potion(self):
         """
@@ -336,6 +414,7 @@ class BossFightSystem:
         # 清除 Boss 和子彈
         self.current_boss = None
         self.boss_bullets.clear()
+        self.ally_bullets.clear()  # 也清除盟友子彈
         
         # 前進到下一個 Boss
         self.current_boss_index += 1
@@ -437,8 +516,16 @@ class BossFightSystem:
         # 繪製玩家
         self.player.draw(screen)
         
+        # 繪製盟友太空船
+        for ally in self.ally_ships:
+            ally.draw(screen)
+        
         # 繪製玩家子彈
         for bullet in self.player_bullets:
+            bullet.draw(screen)
+        
+        # 繪製盟友子彈
+        for bullet in self.ally_bullets:
             bullet.draw(screen)
         
         # 繪製 Boss
@@ -459,6 +546,10 @@ class BossFightSystem:
         """
         # 繪製玩家
         self.player.draw(screen)
+        
+        # 繪製盟友太空船
+        for ally in self.ally_ships:
+            ally.draw(screen)
         
         # 顯示勝利訊息
         victory_text = self.title_font.render("Boss 擊敗！", True, GREEN)
@@ -526,6 +617,9 @@ class BossFightSystem:
         # 太空船類型
         ship_text = self.info_font.render(f"太空船：{self.player.spaceship_type.title()}", True, CYAN)
         screen.blit(ship_text, (10, 35))
+        
+        # 繪製盟友狀態
+        self._draw_ally_status(screen)
         
         # 操作提示
         controls_text = self.info_font.render("WASD:移動 Space:射擊 X:特攻 E:治療 Q:退出", True, WHITE)
@@ -596,3 +690,34 @@ class BossFightSystem:
             boss_name_text = self.info_font.render(boss_config["name"], True, YELLOW)
             boss_name_rect = boss_name_text.get_rect(center=(SCREEN_WIDTH // 2, 85))
             screen.blit(boss_name_text, boss_name_rect)
+    
+    def _draw_ally_status(self, screen):
+        """
+        繪製盟友狀態\n
+        """
+        ally_status_y = 60
+        
+        for i, ally in enumerate(self.ally_ships):
+            # 盟友名稱
+            ally_name = f"盟友 {i + 1}"
+            ally_text = self.info_font.render(f"{ally_name}: {ally.health}/{ally.max_health}", True, CYAN)
+            
+            # 根據盟友位置決定文字顯示位置
+            if ally.position == "left":
+                text_x = 10
+            else:
+                text_x = SCREEN_WIDTH - 150
+            
+            screen.blit(ally_text, (text_x, ally_status_y + i * 25))
+            
+            # 簡單的生命值指示器
+            if ally.health > ally.max_health * 0.6:
+                health_color = GREEN
+            elif ally.health > ally.max_health * 0.3:
+                health_color = YELLOW
+            else:
+                health_color = RED
+            
+            indicator_size = 8
+            indicator_rect = pygame.Rect(text_x - 15, ally_status_y + i * 25 + 5, indicator_size, indicator_size)
+            pygame.draw.rect(screen, health_color, indicator_rect)

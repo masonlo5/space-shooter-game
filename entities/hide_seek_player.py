@@ -135,7 +135,7 @@ class HideSeekPlayer:
         self.y = y
         print(f"玩家 {self.name} 傳送到位置：({x}, {y})")
     
-    def update(self, keys, other_players, map_obstacles):
+    def update(self, keys, other_players, map_obstacles, sounds=None):
         """
         更新玩家狀態\n
         \n
@@ -143,6 +143,7 @@ class HideSeekPlayer:
         keys (dict): 按鍵狀態\n
         other_players (list): 其他玩家列表\n
         map_obstacles (list): 地圖障礙物列表\n
+        sounds (dict): 音效物件字典\n
         """
         if not self.alive:
             return
@@ -172,9 +173,9 @@ class HideSeekPlayer:
         
         # 處理攻擊
         if self.is_human:
-            return self._handle_human_attack(keys, other_players)
+            return self._handle_human_attack(keys, other_players, sounds)
         else:
-            return self._handle_ai_attack(other_players)
+            return self._handle_ai_attack(other_players, sounds)
     
     def _update_status_effects(self):
         """
@@ -417,27 +418,29 @@ class HideSeekPlayer:
         self.camera_x = max(0, min(HIDE_SEEK_MAP["map_width"] - SCREEN_WIDTH, self.camera_x))
         self.camera_y = max(0, min(HIDE_SEEK_MAP["map_height"] - SCREEN_HEIGHT, self.camera_y))
     
-    def _handle_human_attack(self, keys, other_players):
+    def _handle_human_attack(self, keys, other_players, sounds=None):
         """
         處理真人玩家攻擊\n
         \n
         參數:\n
         keys (dict): 按鍵狀態\n
         other_players (list): 其他玩家列表\n
+        sounds (dict): 音效物件字典\n
         \n
         回傳:\n
         dict: 攻擊結果 {"attacked": bool, "target": HideSeekPlayer}\n
         """
         if keys[pygame.K_SPACE] and self.special_attack_cooldown == 0:
-            return self._perform_special_attack(other_players)
+            return self._perform_special_attack(other_players, sounds)
         return {"attacked": False, "target": None}
     
-    def _handle_ai_attack(self, other_players):
+    def _handle_ai_attack(self, other_players, sounds=None):
         """
         處理AI玩家攻擊\n
         \n
         參數:\n
         other_players (list): 其他玩家列表\n
+        sounds (dict): 音效物件字典\n
         \n
         回傳:\n
         dict: 攻擊結果 {"attacked": bool, "target": HideSeekPlayer}\n
@@ -450,21 +453,27 @@ class HideSeekPlayer:
             if player.alive and player.role != self.role:
                 distance = math.sqrt((player.x - self.x)**2 + (player.y - self.y)**2)
                 if distance <= HIDE_SEEK_COMBAT["special_attack_range"]:
-                    return self._perform_special_attack(other_players)
+                    return self._perform_special_attack(other_players, sounds)
         
         return {"attacked": False, "target": None}
     
-    def _perform_special_attack(self, other_players):
+    def _perform_special_attack(self, other_players, sounds=None):
         """
         執行特殊攻擊\n
         \n
         參數:\n
         other_players (list): 其他玩家列表\n
+        sounds (dict): 音效物件字典\n
         \n
         回傳:\n
         dict: 攻擊結果 {"attacked": bool, "target": HideSeekPlayer}\n
         """
         self.special_attack_cooldown = HIDE_SEEK_COMBAT["special_attack_cooldown"]
+        
+        # 播放攻擊音效
+        if sounds:
+            from config import play_sound
+            play_sound(sounds, "laser_shoot", volume=0.8)
         
         # 尋找攻擊範圍內的目標
         for player in other_players:
@@ -488,8 +497,11 @@ class HideSeekPlayer:
                     # 躲藏者攻擊搜尋者：冰凍效果
                     if not player.freeze_immune:
                         player.frozen = True
-                        player.freeze_timer = HIDE_SEEK_COMBAT["freeze_duration"]
-                        print(f"躲藏者 {self.name} 冰凍了搜尋者 {player.name}")
+                        # 隨機設定凍結時間為 0.5-1 秒（60fps，所以 30-60 幀）- 從原本1-3秒縮短
+                        freeze_frames = random.randint(30, 60)  # 30-60幀 = 0.5-1秒
+                        player.freeze_timer = freeze_frames
+                        freeze_seconds = freeze_frames / 60
+                        print(f"躲藏者 {self.name} 冰凍了搜尋者 {player.name}，持續時間：{freeze_seconds:.1f}秒")
                         return {"attacked": True, "target": player}
                     else:
                         print(f"搜尋者 {player.name} 免疫冰凍效果")

@@ -363,9 +363,9 @@ GAME_STATE_HIDE_SEEK_GHOST = "hide_seek_ghost"
 
 # 躲貓貓設定
 HIDE_SEEK_SETTINGS = {
-    "total_players": 5,               # 總玩家數（1真人+4AI）
-    "seekers_count": 2,               # 搜尋者數量
-    "hiders_count": 3,                # 躲藏者數量
+    "total_players": 10,              # 總玩家數（1真人+9AI）- 從5個增加到10個
+    "seekers_count": 3,               # 搜尋者數量 - 從2個增加到3個
+    "hiders_count": 7,                # 躲藏者數量 - 從3個增加到7個
     "game_duration": 3600,            # 遊戲持續時間（60秒）
     "lobby_duration": 300,            # 大廳階段時間（5秒）
     "teleport_duration": 180,         # 傳送階段時間（3秒）
@@ -377,11 +377,11 @@ HIDE_SEEK_SETTINGS = {
 HIDE_SEEK_MAP = {
     "map_width": 1600,        # 地圖實際寬度（比螢幕大）
     "map_height": 1200,       # 地圖實際高度（比螢幕大）
-    "obstacle_count": 15,     # 障礙物數量
+    "obstacle_count": 25,     # 障礙物數量 - 從15增加到25以適應更多玩家
     "obstacle_min_size": 40,  # 障礙物最小尺寸
     "obstacle_max_size": 120, # 障礙物最大尺寸
     "spawn_area_size": 100,   # 初始出生區域大小
-    "safe_distance": 150      # 傳送時玩家間的安全距離
+    "safe_distance": 120      # 傳送時玩家間的安全距離 - 從150減少到120以適應更多玩家
 }
 
 # 躲貓貓太空船外觀設定（5種不同外觀）
@@ -461,7 +461,7 @@ HIDE_SEEK_POTIONS = {
 HIDE_SEEK_COMBAT = {
     "special_attack_cooldown": 60,     # 特殊攻擊冷卻時間（1秒）
     "special_attack_range": 80,        # 特殊攻擊範圍
-    "freeze_duration": 180,            # 冰凍持續時間（3秒）
+    "freeze_duration": 60,             # 冰凍持續時間（1秒）- 從3秒縮短為1秒
     "seeker_attack_damage": 100,       # 搜尋者攻擊傷害（一擊致命）
     "hider_attack_effect": "freeze",   # 躲藏者攻擊效果（冰凍）
     "invulnerable_time": 60           # 受到攻擊後無敵時間（1秒）
@@ -655,6 +655,160 @@ BOSS_FIGHT_UI = {
     "boss_name_font_size": 32,
     "progress_font_size": 24
 }
+
+######################音效系統設定######################
+# 音效檔案路徑和設定
+SOUND_SETTINGS = {
+    "enabled": True,               # 是否啟用音效
+    "master_volume": 0.7,          # 主音量 (0.0 到 1.0)
+    "sfx_volume": 0.8,             # 音效音量 (0.0 到 1.0)
+    "music_volume": 0.5,           # 背景音樂音量 (0.0 到 1.0)
+}
+
+# 音效檔案路徑（相對於專案根目錄）
+SOUND_FILES = {
+    "laser_shoot": "sounds/laser_shoot.wav",
+    "enemy_hit": "sounds/enemy_hit.wav",
+    "powerup_collect": "sounds/powerup_collect.wav",
+    "boss_appear": "sounds/boss_appear.wav",
+    "game_over": "sounds/game_over.wav",
+    "victory": "sounds/victory.wav"
+}
+
+# 音效系統初始化函數
+def init_sound_system():
+    """
+    初始化音效系統並載入所有音效檔案
+    
+    回傳:
+    dict: 載入的音效物件字典，若載入失敗則為 None
+    """
+    import pygame
+    import os
+    
+    try:
+        # 初始化pygame音效系統
+        pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=512)
+        
+        sounds = {}
+        
+        # 載入所有音效檔案
+        for sound_name, file_path in SOUND_FILES.items():
+            full_path = os.path.join(os.path.dirname(__file__), file_path)
+            try:
+                if os.path.exists(full_path):
+                    sound = pygame.mixer.Sound(full_path)
+                    sounds[sound_name] = sound
+                    print(f"成功載入音效: {sound_name}")
+                else:
+                    # 如果音效檔案不存在，創建靜音音效作為佔位符
+                    print(f"音效檔案不存在，將創建: {full_path}")
+                    # 創建目錄
+                    os.makedirs(os.path.dirname(full_path), exist_ok=True)
+                    # 創建一個簡單的雷射音效
+                    if sound_name == "laser_shoot":
+                        create_laser_sound(full_path)
+                        if os.path.exists(full_path):
+                            sound = pygame.mixer.Sound(full_path)
+                            sounds[sound_name] = sound
+                            print(f"成功創建並載入音效: {sound_name}")
+                    else:
+                        sounds[sound_name] = None
+            except Exception as e:
+                print(f"載入音效 {sound_name} 失敗: {e}")
+                sounds[sound_name] = None
+        
+        return sounds
+    except Exception as e:
+        print(f"音效系統初始化失敗: {e}")
+        return {}
+
+def create_laser_sound(file_path):
+    """
+    程序性創建雷射音效
+    
+    參數:
+    file_path (str): 音效檔案儲存路徑
+    """
+    import pygame
+    import numpy as np
+    import os
+    
+    try:
+        # 音效參數
+        sample_rate = 22050
+        duration = 0.15  # 0.15秒的音效
+        frequency = 800  # 基頻800Hz
+        
+        # 生成時間軸
+        t = np.linspace(0, duration, int(sample_rate * duration), False)
+        
+        # 創建雷射音效：高頻到低頻的掃頻，加上一些諧波
+        sweep_freq = frequency * (1 + 2 * np.exp(-t * 8))  # 指數衰減掃頻
+        wave1 = np.sin(2 * np.pi * sweep_freq * t)
+        wave2 = 0.3 * np.sin(2 * np.pi * sweep_freq * 2 * t)  # 二次諧波
+        wave3 = 0.1 * np.sin(2 * np.pi * sweep_freq * 4 * t)  # 四次諧波
+        
+        # 組合波形
+        wave = wave1 + wave2 + wave3
+        
+        # 加入振幅包絡（快速攻擊，緩慢衰減）
+        envelope = np.exp(-t * 5)
+        wave = wave * envelope
+        
+        # 正規化到16位整數範圍
+        wave = (wave * 32767).astype(np.int16)
+        
+        # 創建雙聲道音效
+        stereo_wave = np.column_stack([wave, wave])
+        
+        # 創建pygame音效物件並儲存
+        sound = pygame.sndarray.make_sound(stereo_wave)
+        pygame.mixer.Sound.set_volume(sound, 0.6)  # 設定音量
+        
+        # 儲存為WAV檔案
+        pygame.mixer.Sound(stereo_wave).set_volume(0.6)
+        
+        # 使用pygame的方式儲存
+        temp_surface = pygame.sndarray.make_sound(stereo_wave)
+        
+        # 直接儲存為檔案（這需要手動實作WAV格式）
+        import wave
+        with wave.open(file_path, 'w') as wav_file:
+            wav_file.setnchannels(2)  # 雙聲道
+            wav_file.setsampwidth(2)  # 16位
+            wav_file.setframerate(sample_rate)
+            wav_file.writeframes(stereo_wave.tobytes())
+        
+        print(f"成功創建雷射音效: {file_path}")
+        
+    except ImportError:
+        print("需要安裝 numpy 套件來創建音效: pip install numpy")
+    except Exception as e:
+        print(f"創建音效失敗: {e}")
+
+def play_sound(sounds, sound_name, volume=None):
+    """
+    播放音效
+    
+    參數:
+    sounds (dict): 音效物件字典
+    sound_name (str): 音效名稱
+    volume (float): 可選的音量設定 (0.0 到 1.0)
+    """
+    if not SOUND_SETTINGS["enabled"]:
+        return
+    
+    if sound_name in sounds and sounds[sound_name] is not None:
+        try:
+            sound = sounds[sound_name]
+            if volume is not None:
+                sound.set_volume(volume * SOUND_SETTINGS["sfx_volume"])
+            else:
+                sound.set_volume(SOUND_SETTINGS["sfx_volume"])
+            sound.play()
+        except Exception as e:
+            print(f"播放音效 {sound_name} 失敗: {e}")
 
 ######################遊戲狀態常數######################
 GAME_STATE_MENU = "menu"

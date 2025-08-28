@@ -49,6 +49,16 @@ class Player:
         self.unlocked_weapons = ["basic"]  # 已解鎖的武器
         self.unlocked_ships = ["explorer"]  # 已解鎖的太空船
         
+        # 藥水庫存系統
+        self.health_potions = 0  # 回血藥水數量
+        self.speed_potions = 0   # 加速藥水數量
+        self.protect_potions = 0 # 防護藥水數量
+        
+        # 藥水效果狀態
+        self.speed_boost_timer = 0  # 加速效果剩餘時間
+        self.protect_boost_timer = 0  # 防護效果剩餘時間
+        self.original_speed = self.speed  # 記錄原始速度
+        
     def move(self, keys):
         """
         根據按鍵輸入移動太空船\n
@@ -106,6 +116,19 @@ class Player:
             self.shoot_cooldown -= 1
         if self.special_attack_cooldown > 0:
             self.special_attack_cooldown -= 1
+        
+        # 更新藥水效果
+        if self.speed_boost_timer > 0:
+            self.speed_boost_timer -= 1
+            if self.speed_boost_timer == 0:
+                # 加速效果結束，恢復原始速度
+                self.speed = self.original_speed
+                print("加速效果結束")
+        
+        if self.protect_boost_timer > 0:
+            self.protect_boost_timer -= 1
+            if self.protect_boost_timer == 0:
+                print("防護效果結束")
     
     def change_weapon(self):
         """
@@ -180,6 +203,91 @@ class Player:
             self.special_attack_cooldown = stats["special_cooldown"]
         
         return bullets
+    
+    def use_health_potion(self):
+        """
+        使用回血藥水\n
+        \n
+        回傳:\n
+        bool: 是否成功使用藥水\n
+        """
+        if self.health_potions > 0 and self.health < self.max_health:
+            self.health_potions -= 1
+            old_health = self.health
+            self.health = min(self.max_health, self.health + 30)
+            healed = self.health - old_health
+            print(f"使用回血藥水！回復 {healed} 生命值，剩餘藥水：{self.health_potions}")
+            return True
+        elif self.health >= self.max_health:
+            print("生命值已滿，無需使用回血藥水")
+            return False
+        else:
+            print("沒有回血藥水可用")
+            return False
+    
+    def use_speed_potion(self):
+        """
+        使用加速藥水\n
+        \n
+        回傳:\n
+        bool: 是否成功使用藥水\n
+        """
+        if self.speed_potions > 0:
+            self.speed_potions -= 1
+            if self.speed_boost_timer <= 0:
+                self.original_speed = self.speed  # 記錄當前速度
+            self.speed = min(8, self.original_speed + 2)  # 增加速度
+            self.speed_boost_timer = 300  # 5秒效果
+            print(f"使用加速藥水！速度提升至 {self.speed}，剩餘藥水：{self.speed_potions}")
+            return True
+        else:
+            print("沒有加速藥水可用")
+            return False
+    
+    def use_protect_potion(self):
+        """
+        使用防護藥水\n
+        \n
+        回傳:\n
+        bool: 是否成功使用藥水\n
+        """
+        if self.protect_potions > 0:
+            self.protect_potions -= 1
+            old_health = self.health
+            self.health = min(self.max_health, self.health + 50)  # 回復生命值
+            self.protect_boost_timer = 600  # 10秒防護效果
+            healed = self.health - old_health
+            print(f"使用防護藥水！回復 {healed} 生命值並獲得防護效果，剩餘藥水：{self.protect_potions}")
+            return True
+        else:
+            print("沒有防護藥水可用")
+            return False
+    
+    def add_potion(self, potion_type):
+        """
+        添加藥水到庫存\n
+        \n
+        參數:\n
+        potion_type (str): 藥水類型 ("health_potion", "speed_potion", "protect_potion")\n
+        """
+        if potion_type == "health_potion":
+            self.health_potions += 1
+            print(f"獲得回血藥水！目前擁有：{self.health_potions}")
+        elif potion_type == "speed_potion":
+            self.speed_potions += 1
+            print(f"獲得加速藥水！目前擁有：{self.speed_potions}")
+        elif potion_type == "protect_potion":
+            self.protect_potions += 1
+            print(f"獲得防護藥水！目前擁有：{self.protect_potions}")
+    
+    def has_protect_effect(self):
+        """
+        檢查是否有防護效果\n
+        \n
+        回傳:\n
+        bool: 是否有防護效果\n
+        """
+        return self.protect_boost_timer > 0
     
     def draw(self, screen):
         """

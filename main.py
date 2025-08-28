@@ -10,7 +10,7 @@ from config import *
 from entities import Player, Enemy, Boss, Bullet, PowerUp, Firework
 
 # 匯入遊戲系統
-from systems import check_collision, UISystem, ShopSystem, MenuSystem, ShipBattleSystem, VisualEffectsSystem, HideSeekSystem
+from systems import check_collision, UISystem, ShopSystem, MenuSystem, ShipBattleSystem, VisualEffectsSystem, HideSeekSystem, BossFightSystem
 
 ######################遊戲狀態常數######################
 GAME_STATE_MENU = "menu"
@@ -51,6 +51,9 @@ class GameController:
         # 初始化 Pygame
         pygame.init()
         
+        # 初始化音效系統
+        self.sounds = init_sound_system()
+        
         # 建立遊戲視窗
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Galaxy Blaster - Space Shooter")
@@ -62,7 +65,7 @@ class GameController:
         self.ui_system = UISystem()
         self.shop_system = ShopSystem()
         self.menu_system = MenuSystem()
-        self.ship_battle_system = ShipBattleSystem()
+        self.ship_battle_system = ShipBattleSystem(self.sounds)
         self.visual_effects_system = VisualEffectsSystem()
         self.hide_seek_system = None  # 躲貓貓系統（按需創建）
         self.boss_fight_system = None  # Boss Fight系統（按需創建）
@@ -124,7 +127,7 @@ class GameController:
         
         # 創建躲貓貓遊戲系統
         player_name = self.menu_system.get_player_name()
-        self.hide_seek_system = HideSeekSystem(player_name)
+        self.hide_seek_system = HideSeekSystem(player_name, self.sounds)
         
         # 切換到躲貓貓狀態
         self.game_state = GAME_STATE_HIDE_SEEK
@@ -135,12 +138,9 @@ class GameController:
         """
         print("開始 Boss Fight 模式")
         
-        # 直接從 systems 導入
-        from systems import BossFightSystem
-        
         # 創建 Boss Fight 系統
         player_name = self.menu_system.get_player_name()
-        self.boss_fight_system = BossFightSystem(player_name)
+        self.boss_fight_system = BossFightSystem(player_name, self.sounds)
         
         # 切換到 Boss Fight 狀態
         self.game_state = GAME_STATE_BOSS_FIGHT_MODE
@@ -222,7 +222,19 @@ class GameController:
                         elif event.key == pygame.K_x:
                             # 按下 X 鍵發動特殊攻擊
                             special_bullets = self.player.special_attack()
-                            self.bullets.extend(special_bullets)
+                            if special_bullets:  # 只有成功發動特殊攻擊才播放音效
+                                self.bullets.extend(special_bullets)
+                                # 播放雷射音效（特殊攻擊）
+                                play_sound(self.sounds, "laser_shoot", volume=1.2)
+                        elif event.key == pygame.K_1:
+                            # 按下 1 鍵使用回血藥水
+                            self.player.use_health_potion()
+                        elif event.key == pygame.K_2:
+                            # 按下 2 鍵使用加速藥水
+                            self.player.use_speed_potion()
+                        elif event.key == pygame.K_3:
+                            # 按下 3 鍵使用防護藥水
+                            self.player.use_protect_potion()
                 
                 elif self.game_state in [GAME_STATE_VICTORY, GAME_STATE_GAME_OVER]:
                     # 勝利或遊戲結束時的按鍵處理
@@ -318,6 +330,8 @@ class GameController:
                 new_bullet = self.player.shoot()
                 if new_bullet:
                     self.bullets.append(new_bullet)
+                    # 播放雷射音效
+                    play_sound(self.sounds, "laser_shoot")
             
             # 更新所有子彈
             for bullet in self.bullets[:]:  # 用切片複製清單，避免修改時出錯
@@ -413,7 +427,7 @@ class GameController:
             self.boss.move()
             
             # 更新Boss並獲取新產生的子彈
-            new_boss_bullets = self.boss.update()
+            new_boss_bullets = self.boss.update(self.sounds)
             self.boss_bullets.extend(new_boss_bullets)
     
     def spawn_enemies(self):
@@ -511,7 +525,12 @@ class GameController:
             if check_collision(boss_bullet.x, boss_bullet.y, boss_bullet.width, boss_bullet.height,
                              self.player.x, self.player.y, self.player.width, self.player.height):
                 # Boss子彈打中玩家
-                self.player.health -= boss_bullet.damage
+                damage = boss_bullet.damage
+                if self.player.has_protect_effect():
+                    damage = damage // 2  # 防護效果減少50%傷害
+                    print(f"防護效果啟動！傷害減少至 {damage}")
+                
+                self.player.health -= damage
                 self.boss_bullets.remove(boss_bullet)
                 
                 # 檢查遊戲是否結束
@@ -524,7 +543,12 @@ class GameController:
             if check_collision(self.player.x, self.player.y, self.player.width, self.player.height,
                              enemy.x, enemy.y, enemy.width, enemy.height):
                 # 玩家撞到敵人，減少生命值
-                self.player.health -= 20
+                damage = 20
+                if self.player.has_protect_effect():
+                    damage = damage // 2  # 防護效果減少50%傷害
+                    print(f"防護效果啟動！撞擊傷害減少至 {damage}")
+                
+                self.player.health -= damage
                 self.enemies.remove(enemy)
                 
                 # 檢查遊戲是否結束
@@ -537,7 +561,12 @@ class GameController:
             if check_collision(self.player.x, self.player.y, self.player.width, self.player.height,
                              self.boss.x, self.boss.y, self.boss.width, self.boss.height):
                 # 玩家撞到Boss，嚴重傷害
-                self.player.health -= 50
+                damage = 50
+                if self.player.has_protect_effect():
+                    damage = damage // 2  # 防護效果減少50%傷害
+                    print(f"防護效果啟動！Boss撞擊傷害減少至 {damage}")
+                
+                self.player.health -= damage
                 
                 # 檢查遊戲是否結束
                 if self.player.health <= 0:
@@ -571,8 +600,9 @@ class GameController:
         global victory_timer, enemies_killed
         
         if self.game_state == GAME_STATE_MENU:
-            # 繪製主畫面
-            self.menu_system.draw_menu(self.screen)
+            # 繪製主畫面，傳遞滑鼠位置以支援 hover 效果
+            mouse_pos = pygame.mouse.get_pos()
+            self.menu_system.draw_menu(self.screen, mouse_pos)
         
         elif self.game_state == GAME_STATE_SHIP_BATTLE:
             # 繪製 Ship Battle 模式

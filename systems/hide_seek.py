@@ -22,14 +22,16 @@ class HideSeekSystem:
     8. UI介面協調\n
     """
     
-    def __init__(self, human_player_name="Player"):
+    def __init__(self, human_player_name="Player", sounds=None):
         """
         初始化躲貓貓遊戲系統\n
         \n
         參數:\n
         human_player_name (str): 真人玩家名稱\n
+        sounds (dict): 音效物件字典\n
         """
         self.human_player_name = human_player_name
+        self.sounds = sounds or {}
         
         # 遊戲狀態
         self.game_state = GAME_STATE_HIDE_SEEK_LOBBY
@@ -110,8 +112,11 @@ class HideSeekSystem:
         self.players.append(human_player)
         self.human_player = human_player
         
-        # 創建AI玩家
-        ai_names = ["機器人Alpha", "機器人Beta", "機器人Gamma", "機器人Delta"]
+        # 創建AI玩家 - 擴展到9個機器人
+        ai_names = [
+            "機器人Alpha", "機器人Beta", "機器人Gamma", "機器人Delta", 
+            "機器人Echo", "機器人Foxtrot", "機器人Golf", "機器人Hotel", "機器人India"
+        ]
         for i in range(1, total_players):
             ai_name = ai_names[i-1] if i-1 < len(ai_names) else f"機器人{i}"
             ai_player = HideSeekPlayer(i, is_human=False, name=ai_name, assigned_potion=assigned_potions[i])
@@ -313,7 +318,7 @@ class HideSeekSystem:
         for player in alive_players:
             # 更新玩家狀態
             attack_result = player.update(keys if player.is_human else {}, 
-                                        alive_players, self.game_map.get_obstacles())
+                                        alive_players, self.game_map.get_obstacles(), self.sounds)
             
             # 處理攻擊結果
             if attack_result and attack_result["attacked"] and attack_result["target"]:
