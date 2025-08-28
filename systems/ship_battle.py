@@ -1,9 +1,31 @@
 ######################載入套件######################
 import pygame
 import random
+import os
 from config import *
 from entities import Robot
 from systems.collision import check_collision
+
+# 持久化記錄上次使用的太空船類型
+LAST_SHIP_FILE = ".last_ship.txt"
+
+def get_last_spaceship_type():
+    """取得上次使用的太空船類型"""
+    try:
+        if os.path.exists(LAST_SHIP_FILE):
+            with open(LAST_SHIP_FILE, 'r') as f:
+                return f.read().strip()
+    except:
+        pass
+    return None
+
+def save_last_spaceship_type(ship_type):
+    """儲存本次使用的太空船類型"""
+    try:
+        with open(LAST_SHIP_FILE, 'w') as f:
+            f.write(ship_type)
+    except:
+        pass
 
 ######################Ship Battle 遊戲模式系統######################
 class ShipBattleSystem:
@@ -66,23 +88,41 @@ class ShipBattleSystem:
         self.player.health = SHIP_BATTLE_STATS["initial_health"]
         self.player.max_health = SHIP_BATTLE_STATS["initial_health"]
         
-        # 為玩家隨機分配太空船和武器
+        # 隨機選擇太空船類型（確保每次不同）
         available_ships = list(SPACESHIP_STATS.keys())
-        available_weapons = list(WEAPON_STATS.keys())
         
-        player_ship = random.choice(available_ships)
-        player_weapon = random.choice(available_weapons)
+        # 取得上次使用的太空船類型
+        last_ship = get_last_spaceship_type()
         
-        self.player.spaceship_type = player_ship
-        self.player.current_weapon = player_weapon
+        # 如果有上次使用的太空船類型，則從可選列表中移除
+        if last_ship and last_ship in available_ships and len(available_ships) > 1:
+            available_ships.remove(last_ship)
+            print(f"上次使用了 {last_ship}，本次將從其他太空船中隨機選擇")
+        
+        # 隨機選擇太空船類型
+        selected_ship = random.choice(available_ships)
+        
+        # 儲存本次選擇的太空船類型
+        save_last_spaceship_type(selected_ship)
+        
+        # 為了平衡性，使用預設武器（不隨機武器）
+        selected_weapon = "basic"  # 統一使用基礎武器，讓對戰更公平
+        
+        # 為玩家設定隨機選擇的太空船
+        self.player.spaceship_type = selected_ship
+        self.player.current_weapon = selected_weapon
         self.player.update_ship_stats()
         
-        print(f"玩家獲得太空船：{player_ship}，武器：{player_weapon}")
+        print(f"本次對戰配置：太空船：{selected_ship}，武器：{selected_weapon}")
+        print(f"玩家和機器人將使用相同的太空船進行對戰")
         
-        # 創建機器人
+        # 創建機器人（使用與玩家相同的太空船類型）
         robot_x = random.randint(100, SCREEN_WIDTH - 100)
         robot_y = 100
         self.robot = Robot(robot_x, robot_y)
+        
+        # 讓機器人使用與玩家相同的太空船配置
+        self.robot.update_spaceship_config(selected_ship, selected_weapon)
         
         # 將玩家放在底部中央
         self.player.x = SCREEN_WIDTH // 2 - self.player.width // 2

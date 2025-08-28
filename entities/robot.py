@@ -46,20 +46,14 @@ class Robot:
         self.health_potions = ROBOT_STATS["health_potion_count"]
         self.move_speed = ROBOT_STATS["move_speed"]
         
-        # 隨機分配太空船類型
-        available_ships = list(SPACESHIP_STATS.keys())
-        self.spaceship_type = random.choice(available_ships)
-        ship_stats = SPACESHIP_STATS[self.spaceship_type]
+        # 預設太空船類型（將由 Ship Battle 系統設定）
+        self.spaceship_type = "explorer"  # 預設值，會被覆蓋
+        self.weapon_type = "basic"  # 預設值，會被覆蓋
         
-        # 套用太空船屬性
+        # 使用預設太空船屬性初始化（將在設定太空船類型後更新）
+        ship_stats = SPACESHIP_STATS[self.spaceship_type]
         self.width = ship_stats["width"]
         self.height = ship_stats["height"]
-        self.max_health = ship_stats["max_health"]
-        self.health = self.max_health
-        
-        # 隨機分配武器類型
-        available_weapons = list(WEAPON_STATS.keys())
-        self.weapon_type = random.choice(available_weapons)
         
         # AI 行為控制
         self.shoot_cooldown = 0
@@ -74,6 +68,27 @@ class Robot:
         self.movement_pattern = random.choice(["aggressive", "defensive", "random"])
         
         print(f"機器人 {self.name} 準備就緒！")
+        print(f"  等待太空船和武器配置...")
+    
+    def update_spaceship_config(self, spaceship_type, weapon_type):
+        """
+        更新機器人的太空船和武器配置\n
+        \n
+        參數:\n
+        spaceship_type (str): 太空船類型\n
+        weapon_type (str): 武器類型\n
+        """
+        self.spaceship_type = spaceship_type
+        self.weapon_type = weapon_type
+        
+        # 更新太空船屬性
+        ship_stats = SPACESHIP_STATS[spaceship_type]
+        self.width = ship_stats["width"]
+        self.height = ship_stats["height"]
+        self.max_health = ship_stats["max_health"]
+        self.health = self.max_health
+        
+        print(f"機器人配置更新完成！")
         print(f"  太空船: {self.spaceship_type}")
         print(f"  武器: {self.weapon_type}")
         print(f"  生命值: {self.health}")
